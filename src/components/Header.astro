@@ -34,23 +34,44 @@ const NAV_LINKS = [
 
 const navLinkClass =
 	"text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors";
+
+const menuText =
+	locale === "ja"
+		? {
+				open: "メニューを開く",
+				close: "メニューを閉じる",
+				nav: "サイトナビゲーション",
+			}
+		: locale === "zh-cn"
+			? { open: "打开菜单", close: "关闭菜单", nav: "网站导航" }
+			: { open: "Open menu", close: "Close menu", nav: "Site navigation" };
+
+const mobileLinkClass =
+	"flex items-center justify-between gap-4 rounded-2xl bg-slate-100/80 dark:bg-slate-800/80 px-5 py-4 text-lg font-semibold text-slate-900 dark:text-white transition-all hover:bg-slate-200/80 dark:hover:bg-slate-700/80 active:scale-[0.99]";
 ---
 
 <header
 	class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800"
 >
-	<Container class="py-4 flex justify-between items-center">
-		<a href="#" class="text-xl font-bold text-slate-900 dark:text-white"
+	<Container class="py-4 flex justify-between items-center gap-2">
+		<a
+			href="#"
+			class="text-xl font-bold text-slate-900 dark:text-white shrink-0 truncate"
 			>{SITE_NAME}</a
 		>
-		<nav class="flex items-center gap-6 text-sm">
-			{
-				NAV_LINKS.map((link) => (
-					<a href={link.href} class={navLinkClass}>
-						{link.label}
-					</a>
-				))
-			}
+		<div class="flex items-center gap-2 min-w-0">
+			<nav
+				class="hidden md:flex items-center gap-6 text-sm"
+				aria-label={menuText.nav}
+			>
+				{
+					NAV_LINKS.map((link) => (
+						<a href={link.href} class={navLinkClass}>
+							{link.label}
+						</a>
+					))
+				}
+			</nav>
 			<div class="flex items-center gap-2">
 				<button
 					id="theme-toggle"
@@ -98,30 +119,142 @@ const navLinkClass =
 						}
 					</div>
 				</div>
+				<button
+					id="mobile-menu-toggle"
+					class="md:hidden h-11 w-11 shrink-0 rounded-full bg-slate-100/80 dark:bg-slate-800/80 backdrop-blur flex items-center justify-center text-slate-700 dark:text-slate-200 border border-slate-200/60 dark:border-slate-700/60 hover:bg-slate-200/80 dark:hover:bg-slate-700/80 active:scale-95 transition-all"
+					aria-label={menuText.open}
+					aria-controls="mobile-menu"
+					aria-expanded="false"
+				>
+					<Icon name="lucide:menu" id="mobile-icon-open" class="h-6 w-6" />
+					<Icon name="lucide:x" id="mobile-icon-close" class="h-6 w-6 hidden" />
+				</button>
 			</div>
-		</nav>
+		</div>
 	</Container>
 </header>
+<div
+	id="mobile-menu"
+	class="hidden fixed inset-0 z-40 md:hidden bg-white/95 dark:bg-slate-900/95 backdrop-blur-md transition-transform duration-300 ease-out translate-x-full motion-reduce:transition-none"
+	role="dialog"
+	aria-modal="true"
+	aria-hidden="true"
+	aria-label={menuText.nav}
+>
+	<nav
+		class="h-full overflow-y-auto px-6 pt-24 pb-[calc(2rem+env(safe-area-inset-bottom))] flex flex-col gap-2 text-lg"
+	>
+		{
+			NAV_LINKS.map((link) => (
+				<a href={link.href} class={mobileLinkClass}>
+					<span>{link.label}</span>
+					<Icon
+						name="lucide:chevron-right"
+						class="h-5 w-5 shrink-0 text-slate-400 dark:text-slate-500"
+					/>
+				</a>
+			))
+		}
+	</nav>
+</div>
 
-<script is:inline define:vars={{ storageKey: LOCALE_STORAGE_KEY }}>
+<script
+	is:inline
+	define:vars={{
+		storageKey: LOCALE_STORAGE_KEY,
+		menuOpenLabel: menuText.open,
+		menuCloseLabel: menuText.close,
+	}}
+>
 	const themeToggle = document.getElementById("theme-toggle");
 	const themeIconSun = document.getElementById("theme-icon-sun");
 	const themeIconMoon = document.getElementById("theme-icon-moon");
 	const localeToggle = document.getElementById("locale-toggle");
 	const localeMenu = document.getElementById("locale-menu");
+	const mobileToggle = document.getElementById("mobile-menu-toggle");
+	const mobileMenu = document.getElementById("mobile-menu");
+	const mobileIconOpen = document.getElementById("mobile-icon-open");
+	const mobileIconClose = document.getElementById("mobile-icon-close");
 	const isDark = () => document.documentElement.classList.contains("dark");
+	const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 	const updateIcon = () => {
 		themeIconSun?.classList.toggle("hidden", isDark());
 		themeIconMoon?.classList.toggle("hidden", !isDark());
 	};
 
+	let mobileMenuOpen = false;
+	let mobileCloseTimer = 0;
+
+	const isMobileMenuOpen = () => mobileMenuOpen;
+
+	const setMobileMenu = (open) => {
+		if (!mobileMenu || !mobileToggle) return;
+		mobileMenuOpen = open;
+		mobileToggle.setAttribute("aria-expanded", String(open));
+		mobileToggle.setAttribute(
+			"aria-label",
+			open ? menuCloseLabel : menuOpenLabel,
+		);
+		mobileMenu.setAttribute("aria-hidden", String(!open));
+		mobileIconOpen?.classList.toggle("hidden", open);
+		mobileIconClose?.classList.toggle("hidden", !open);
+		document.body.style.overflow = open ? "hidden" : "";
+		if (open) {
+			if (mobileCloseTimer) {
+				window.clearTimeout(mobileCloseTimer);
+				mobileCloseTimer = 0;
+			}
+			mobileMenu.classList.remove("hidden");
+			// Force reflow so the slide transition plays.
+			void mobileMenu.offsetWidth;
+			mobileMenu.classList.remove("translate-x-full");
+			mobileToggle.focus({ preventScroll: true });
+		} else {
+			mobileMenu.classList.add("translate-x-full");
+			if (reduceMotion.matches) {
+				mobileMenu.classList.add("hidden");
+			} else {
+				if (mobileCloseTimer) {
+					window.clearTimeout(mobileCloseTimer);
+				}
+				mobileCloseTimer = window.setTimeout(() => {
+					if (!mobileMenuOpen) mobileMenu.classList.add("hidden");
+					mobileCloseTimer = 0;
+				}, 300);
+			}
+		}
+	};
+
+	mobileToggle?.addEventListener("click", (event) => {
+		event.stopPropagation();
+		setMobileMenu(!isMobileMenuOpen());
+	});
+
+	mobileMenu?.querySelectorAll("a").forEach((link) => {
+		link.addEventListener("click", () => setMobileMenu(false));
+	});
+
+	document.addEventListener("keydown", (event) => {
+		if (event.key === "Escape" && isMobileMenuOpen()) {
+			setMobileMenu(false);
+			mobileToggle?.focus({ preventScroll: true });
+		}
+	});
+
+	window
+		.matchMedia("(min-width: 768px)")
+		.addEventListener("change", (event) => {
+			if (event.matches && isMobileMenuOpen()) setMobileMenu(false);
+		});
+
 	themeToggle?.addEventListener("click", () => {
 		document.documentElement.classList.toggle("dark");
 		updateIcon();
 	});
 
-	localeToggle?.addEventListener("click", () => {
+	localeToggle?.addEventListener("click", (event) => {
+		event.stopPropagation();
 		const expanded = localeToggle.getAttribute("aria-expanded") === "true";
 		localeToggle.setAttribute("aria-expanded", String(!expanded));
 		localeMenu?.classList.toggle("hidden", expanded);
@@ -133,7 +266,9 @@ const navLinkClass =
 			!localeMenu.classList.contains("hidden") &&
 			event.target instanceof Node &&
 			!localeToggle?.contains(event.target) &&
-			!localeMenu.contains(event.target)
+			!localeMenu.contains(event.target) &&
+			!mobileToggle?.contains(event.target) &&
+			!mobileMenu?.contains(event.target)
 		) {
 			localeMenu.classList.add("hidden");
 			localeToggle?.setAttribute("aria-expanded", "false");
