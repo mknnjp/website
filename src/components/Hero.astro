@@ -11,15 +11,17 @@ interface Props {
 	locale?: Locale;
 	hero?: Dictionary["hero"];
 	qqModal?: Dictionary["qqModal"];
+	emailModal?: Dictionary["emailModal"];
 }
 
-const { locale = "en", hero, qqModal } = Astro.props;
+const { locale = "en", hero, qqModal, emailModal } = Astro.props;
 const displayName = DISPLAY_NAMES[locale];
 const subtitle =
 	hero?.subtitle ??
 	"Software Engineer based in Tokyo, focusing on web and mobile application development.";
 const avatarAlt = hero?.avatarAlt ?? displayName;
 const qqOpenLabel = qqModal?.openLabel ?? "Show QQ QR code";
+const emailOpenLabel = emailModal?.openLabel ?? "Show email address";
 ---
 
 <section class="min-h-screen flex items-center justify-center pt-16">
@@ -53,6 +55,23 @@ const qqOpenLabel = qqModal?.openLabel ?? "Show QQ QR code";
 								type="button"
 								data-qq-open
 								aria-label={qqOpenLabel}
+								class="flex items-center gap-2 px-5 py-2.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+							>
+								<SocialIcon
+									icon={link.icon}
+									imgSrc={link.imgSrc}
+									label={link.label}
+								/>
+								{link.label}
+							</button>
+						);
+					}
+					if (link.modal === "email") {
+						return (
+							<button
+								type="button"
+								data-email-open
+								aria-label={emailOpenLabel}
 								class="flex items-center gap-2 px-5 py-2.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
 							>
 								<SocialIcon

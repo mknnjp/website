@@ -11,6 +11,8 @@ export const DISPLAY_NAME = `${PROFILE_NAME} ${PROFILE_NAME_JA}`;
 export const AVATAR_URL =
   "https://avatars.githubusercontent.com/u/130737299?v=4";
 
+export const EMAIL = "me@mknn.jp";
+
 export const SITE_TITLE = `${DISPLAY_NAME} - Portfolio`;
 
 export const SITE_DESCRIPTION =

@@ -3,7 +3,7 @@ export interface SocialLink {
   href?: string;
   icon?: string;
   imgSrc?: string;
-  modal?: "qq";
+  modal?: "qq" | "email";
 }
 
 export const SOCIAL_LINKS: SocialLink[] = [
@@ -13,6 +13,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
     href: "https://discord.com/channels/@me/257326164996128770",
     icon: "simple-icons:discord",
   },
+  { label: "Email", icon: "lucide:mail", modal: "email" },
   { label: "GitHub", href: "https://github.com/mknnjp", icon: "simple-icons:github" },
   {
     label: "Instagram",

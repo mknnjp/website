@@ -4,6 +4,7 @@ import ExternalLink from "./ExternalLink.astro";
 import SocialIcon from "./SocialIcon.astro";
 import LicensesModal from "./LicensesModal.astro";
 import QqModal from "./QqModal.astro";
+import EmailModal from "./EmailModal.astro";
 import { SOCIAL_LINKS } from "../lib/social.ts";
 import { COPYRIGHT_YEAR } from "../lib/site.ts";
 import { DISPLAY_NAMES, type Locale } from "../i18n/locales.ts";
@@ -14,13 +15,21 @@ interface Props {
 	footer?: Dictionary["footer"];
 	licensesModal?: Dictionary["licensesModal"];
 	qqModal?: Dictionary["qqModal"];
+	emailModal?: Dictionary["emailModal"];
 }
 
-const { locale = "en", footer, licensesModal, qqModal } = Astro.props;
+const {
+	locale = "en",
+	footer,
+	licensesModal,
+	qqModal,
+	emailModal,
+} = Astro.props;
 const displayName = DISPLAY_NAMES[locale];
 const rightsSuffix = footer?.rightsSuffix ?? "All rights reserved.";
 const licensesButton = footer?.licensesButton ?? "Third-party licenses";
 const qqOpenLabel = qqModal?.openLabel ?? "Show QQ QR code";
+const emailOpenLabel = emailModal?.openLabel ?? "Show email address";
 ---
 
 <footer class="py-12 border-t border-slate-200 dark:border-slate-800">
@@ -57,6 +66,22 @@ const qqOpenLabel = qqModal?.openLabel ?? "Show QQ QR code";
 								</button>
 							);
 						}
+						if (link.modal === "email") {
+							return (
+								<button
+									type="button"
+									data-email-open
+									aria-label={emailOpenLabel}
+									class="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+								>
+									<SocialIcon
+										icon={link.icon}
+										imgSrc={link.imgSrc}
+										label={link.label}
+									/>
+								</button>
+							);
+						}
 						return (
 							<ExternalLink
 								href={link.href!}
@@ -77,4 +102,5 @@ const qqOpenLabel = qqModal?.openLabel ?? "Show QQ QR code";
 	</Container>
 	<LicensesModal licensesModal={licensesModal} />
 	<QqModal qqModal={qqModal} />
+	<EmailModal emailModal={emailModal} />
 </footer>

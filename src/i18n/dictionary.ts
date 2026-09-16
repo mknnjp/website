@@ -73,4 +73,14 @@ export interface Dictionary {
     closeLabel: string;
     qrAlt: string;
   };
+  emailModal: {
+    openLabel: string;
+    title: string;
+    description: string;
+    closeLabel: string;
+    addressLabel: string;
+    copyLabel: string;
+    copiedLabel: string;
+    composeLabel: string;
+  };
 }

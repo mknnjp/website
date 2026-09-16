@@ -88,4 +88,14 @@ export const zhCn: Dictionary = {
     closeLabel: "关闭 QQ 二维码对话框",
     qrAlt: "QQ 二维码",
   },
+  emailModal: {
+    openLabel: "显示电子邮件地址",
+    title: "电子邮件",
+    description: "欢迎通过电子邮件联系我。",
+    closeLabel: "关闭电子邮件对话框",
+    addressLabel: "电子邮件地址",
+    copyLabel: "复制",
+    copiedLabel: "已复制",
+    composeLabel: "撰写邮件",
+  },
 };

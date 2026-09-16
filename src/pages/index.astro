@@ -19,7 +19,12 @@ const dict = getDictionary(locale);
 	description={dict.meta.description}
 >
 	<Header locale={locale} nav={dict.nav} languageLabel={dict.languageLabel} />
-	<Hero locale={locale} hero={dict.hero} />
+	<Hero
+		locale={locale}
+		hero={dict.hero}
+		qqModal={dict.qqModal}
+		emailModal={dict.emailModal}
+	/>
 	<About locale={locale} about={dict.about} />
 	<TechStack tech={dict.tech} />
 	<PersonalProjects personalProjects={dict.personalProjects} />
@@ -29,5 +34,6 @@ const dict = getDictionary(locale);
 		footer={dict.footer}
 		licensesModal={dict.licensesModal}
 		qqModal={dict.qqModal}
+		emailModal={dict.emailModal}
 	/>
 </Layout>

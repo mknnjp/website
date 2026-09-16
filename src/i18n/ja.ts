@@ -91,4 +91,14 @@ export const ja: Dictionary = {
     closeLabel: "QQのQRコードダイアログを閉じる",
     qrAlt: "QQのQRコード",
   },
+  emailModal: {
+    openLabel: "メールアドレスを表示",
+    title: "メール",
+    description: "お気軽にメールでご連絡ください。",
+    closeLabel: "メールのダイアログを閉じる",
+    addressLabel: "メールアドレス",
+    copyLabel: "コピー",
+    copiedLabel: "コピーしました",
+    composeLabel: "メールを作成",
+  },
 };
