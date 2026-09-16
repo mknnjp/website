@@ -16,25 +16,23 @@ import type { Dictionary } from "../i18n/dictionary.ts";
 interface Props {
 	locale?: Locale;
 	nav?: Dictionary["nav"];
+	header?: Dictionary["header"];
 	languageLabel?: string;
 }
 
 const {
 	locale = DEFAULT_LOCALE,
 	nav,
+	header,
 	languageLabel = "Language",
 } = Astro.props;
 
-const menuText =
-	locale === "ja"
-		? {
-				open: "メニューを開く",
-				close: "メニューを閉じる",
-				nav: "サイトナビゲーション",
-			}
-		: locale === "zh-cn"
-			? { open: "打开菜单", close: "关闭菜单", nav: "网站导航" }
-			: { open: "Open menu", close: "Close menu", nav: "Site navigation" };
+const menuText = {
+	open: header?.openMenuLabel ?? "Open menu",
+	close: header?.closeMenuLabel ?? "Close menu",
+	nav: header?.navLabel ?? "Site navigation",
+};
+const toggleThemeLabel = header?.toggleThemeLabel ?? "Toggle theme";
 ---
 
 <header
@@ -49,7 +47,7 @@ const menuText =
 		<div class="flex items-center gap-6 min-w-0">
 			<NavLinks nav={nav} variant="desktop" navLabel={menuText.nav} />
 			<div class="flex items-center gap-2">
-				<ThemeToggle />
+				<ThemeToggle label={toggleThemeLabel} />
 				<LocaleMenu
 					locale={locale}
 					languageLabel={languageLabel}

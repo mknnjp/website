@@ -4,13 +4,19 @@ export const en: Dictionary = {
   meta: {
     title: "Makie - Portfolio",
     description:
-      "Makie - Software Engineer based in Tokyo, focusing on Web development with TypeScript, Rust, and Node.js.",
+      "Makie - Software Engineer based in Tokyo, focusing on web development with TypeScript, Rust, and Node.js.",
   },
   nav: {
     about: "About",
     tech: "Tech Stack",
-    personalProjects: "Personal Project",
+    personalProjects: "Personal Projects",
     stats: "Stats",
+  },
+  header: {
+    openMenuLabel: "Open menu",
+    closeMenuLabel: "Close menu",
+    navLabel: "Site navigation",
+    toggleThemeLabel: "Toggle theme",
   },
   languageLabel: "Language",
   hero: {
@@ -22,9 +28,9 @@ export const en: Dictionary = {
     title: "About Me",
     greetingTemplate: "Hi! I'm {name}, a Software Engineer based in Tokyo.",
     paragraphs: [
-      "I mainly develop Node.js backend servers in TypeScript for business projects.",
-      "In personal projects, I build tools for household finance and develop 2D games.",
-      "My approach is largely specification-driven, leveraging AI agents—though I never lose the joy of writing code myself.",
+      "I mainly develop Node.js backend services in TypeScript for work.",
+      "In personal projects, I develop personal finance tools and 2D games.",
+      "My development style is specification-driven with AI agents—though I never lose the joy of writing code myself.",
     ],
   },
   tech: {
@@ -36,18 +42,16 @@ export const en: Dictionary = {
     },
   },
   personalProjects: {
-    title: "Personal Project",
+    title: "Personal Projects",
     descriptions: {
       utopia:
-        "A lightweight, self-hostable personal finance API with partial Firefly-III compatibility, written in Rust.",
+        "Lightweight, self-hostable personal finance API with partial Firefly III compatibility; Rust.",
       xiangke:
-        "Xiangke (相剋; xiāngkè) is a turn-based battle game with menu-driven combat, inspired by Romance of the Three Kingdoms.",
+        "Xiangke (相剋, xiāngkè): command turn-based battle game inspired by Romance of the Three Kingdoms.",
       "pr-agent-runner":
-        "AI-powered PR review automation built on OpenCodeReview (OCR) and a small TypeScript CLI that posts reviews and answers @mention commands on GitHub.",
+        "AI-powered PR review automation on OpenCodeReview (OCR); TypeScript CLI for GitHub @mention responses.",
     },
     viewOnGitHubTemplate: "View {name} on GitHub",
-    starsTemplate: "{count} star",
-    forksTemplate: "{count} fork",
     inDevelopment: "In Development",
   },
   stats: {
@@ -63,8 +67,8 @@ export const en: Dictionary = {
     topReposLoadError: "Could not load top repositories. Please try again later.",
     labels: {
       commits: "Commits",
-      pullRequests: "Pull requests",
-      codeReview: "Code review",
+      pullRequests: "Pull Requests",
+      codeReview: "Code Reviews",
       issues: "Issues",
     },
   },
@@ -75,7 +79,7 @@ export const en: Dictionary = {
   licensesModal: {
     title: "Third-party licenses",
     description:
-      "This site is built with open source software. Thanks to the maintainers and contributors of these projects.",
+      "This site is built with open-source software. Thanks to the maintainers and contributors of these projects.",
     closeLabel: "Close third-party licenses dialog",
     categories: {
       runtime: "Runtime",

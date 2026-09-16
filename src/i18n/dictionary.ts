@@ -9,6 +9,12 @@ export interface Dictionary {
     personalProjects: string;
     stats: string;
   };
+  header: {
+    openMenuLabel: string;
+    closeMenuLabel: string;
+    navLabel: string;
+    toggleThemeLabel: string;
+  };
   languageLabel: string;
   hero: {
     subtitle: string;
@@ -31,8 +37,6 @@ export interface Dictionary {
     title: string;
     descriptions: Record<string, string>;
     viewOnGitHubTemplate: string;
-    starsTemplate: string;
-    forksTemplate: string;
     inDevelopment: string;
   };
   stats: {

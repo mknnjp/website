@@ -45,13 +45,11 @@ const PROJECTS: Project[] = [
 	},
 ];
 
-const title = personalProjects?.title ?? "Personal Project";
+const title = personalProjects?.title ?? "Personal Projects";
 const descriptions = personalProjects?.descriptions ?? {};
 const inDevelopmentLabel = personalProjects?.inDevelopment ?? "In Development";
 const viewOnGitHubTemplate =
 	personalProjects?.viewOnGitHubTemplate ?? "View {name} on GitHub";
-const starsTemplate = personalProjects?.starsTemplate ?? "{count} star";
-const forksTemplate = personalProjects?.forksTemplate ?? "{count} fork";
 ---
 
 <Section id="personalProjects" title={title} variant="muted">
@@ -91,13 +89,13 @@ const forksTemplate = personalProjects?.forksTemplate ?? "{count} fork";
 							{project.stars ? (
 								<span class="flex items-center gap-1">
 									<Icon name="lucide:star" class="h-4 w-4" />
-									{formatTemplate(starsTemplate, { count: project.stars })}
+									{project.stars}
 								</span>
 							) : null}
 							{project.forks ? (
 								<span class="flex items-center gap-1">
 									<Icon name="lucide:git-fork" class="h-4 w-4" />
-									{formatTemplate(forksTemplate, { count: project.forks })}
+									{project.forks}
 								</span>
 							) : null}
 						</div>
