@@ -1,0 +1,23 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  openLabel?: string;
+  closeLabel?: string;
+}
+
+const { openLabel = "Open menu", closeLabel = "Close menu" } = Astro.props;
+---
+
+<button
+  id="mobile-menu-toggle"
+  class="md:hidden h-11 w-11 shrink-0 rounded-full bg-slate-100/80 dark:bg-slate-800/80 backdrop-blur flex items-center justify-center text-slate-700 dark:text-slate-200 border border-slate-200/60 dark:border-slate-700/60 hover:bg-slate-200/80 dark:hover:bg-slate-700/80 active:scale-95 transition-all"
+  aria-label={openLabel}
+  aria-controls="mobile-menu"
+  aria-expanded="false"
+  data-open-label={openLabel}
+  data-close-label={closeLabel}
+>
+  <Icon name="lucide:menu" id="mobile-icon-open" class="h-6 w-6" />
+  <Icon name="lucide:x" id="mobile-icon-close" class="h-6 w-6 hidden" />
+</button>
