@@ -16,12 +16,16 @@ const activityHeading = stats?.activity ?? "Activity";
 const topReposHeading = stats?.topRepos ?? "Top Repositories";
 const loadingPushes = stats?.loadingPushes ?? "Loading recent pushes…";
 const loadingActivity = stats?.loadingActivity ?? "Loading activity…";
+const loadingTopRepos = stats?.loadingTopRepos ?? "Loading top repositories…";
 const loadError =
 	stats?.loadError ?? "Could not load GitHub activity. Please try again later.";
+const topReposLoadError =
+	stats?.topReposLoadError ??
+	"Could not load top repositories. Please try again later.";
 const activityLabels = stats?.labels ?? {
 	commits: "Commits",
-	pullRequests: "Pull requests",
-	codeReview: "Code review",
+	pullRequests: "Pull Requests",
+	codeReview: "Code Reviews",
 	issues: "Issues",
 };
 
@@ -88,11 +92,18 @@ const skeletonBar =
 
 	<Card>
 		<h3 class={statHeadingClass}>{topReposHeading}</h3>
-		<div id="github-top-repos" class="space-y-3" aria-live="polite">
+		<div
+			id="github-top-repos"
+			class="space-y-3"
+			aria-live="polite"
+			data-load-error={topReposLoadError}
+			data-loading={loadingTopRepos}
+		>
 			<div class="flex justify-between">
 				<span class={skeletonBar} aria-hidden="true"></span>
 				<span class={skeletonBar} aria-hidden="true"></span>
 			</div>
+			<span class="sr-only">{loadingTopRepos}</span>
 		</div>
 		<p
 			id="github-top-repos-error"
@@ -125,8 +136,8 @@ const skeletonBar =
 		if (activityEl) {
 			const labels = [
 				activityEl.dataset.labelCommits ?? "Commits",
-				activityEl.dataset.labelPullRequests ?? "Pull requests",
-				activityEl.dataset.labelCodeReview ?? "Code review",
+				activityEl.dataset.labelPullRequests ?? "Pull Requests",
+				activityEl.dataset.labelCodeReview ?? "Code Reviews",
 				activityEl.dataset.labelIssues ?? "Issues",
 			];
 			activityEl.innerHTML = "";
@@ -209,6 +220,7 @@ const skeletonBar =
 		if (topReposEl) topReposEl.innerHTML = "";
 		if (topReposErrorEl) {
 			topReposErrorEl.textContent =
+				topReposEl?.dataset.loadError ??
 				"Could not load top repositories. Please try again later.";
 			topReposErrorEl.hidden = false;
 		}

@@ -84,8 +84,8 @@ export const buildActivityStats = (events: EventResponse[]): ActivityStats => {
     eventsTotal: events.length,
     activity: [
       { label: "Commits", percent: toPercent(commits) },
-      { label: "Pull requests", percent: toPercent(pullRequests) },
-      { label: "Code review", percent: toPercent(codeReviews) },
+      { label: "Pull Requests", percent: toPercent(pullRequests) },
+      { label: "Code Reviews", percent: toPercent(codeReviews) },
       { label: "Issues", percent: toPercent(issues) },
     ],
   };

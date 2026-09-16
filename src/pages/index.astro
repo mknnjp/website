@@ -18,7 +18,12 @@ const dict = getDictionary(locale);
 	title={dict.meta.title}
 	description={dict.meta.description}
 >
-	<Header locale={locale} nav={dict.nav} languageLabel={dict.languageLabel} />
+	<Header
+		locale={locale}
+		nav={dict.nav}
+		header={dict.header}
+		languageLabel={dict.languageLabel}
+	/>
 	<Hero
 		locale={locale}
 		hero={dict.hero}

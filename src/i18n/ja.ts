@@ -12,6 +12,12 @@ export const ja: Dictionary = {
     personalProjects: "個人プロジェクト",
     stats: "統計",
   },
+  header: {
+    openMenuLabel: "メニューを開く",
+    closeMenuLabel: "メニューを閉じる",
+    navLabel: "サイトナビゲーション",
+    toggleThemeLabel: "テーマを切り替える",
+  },
   languageLabel: "言語",
   hero: {
     subtitle:
@@ -22,9 +28,9 @@ export const ja: Dictionary = {
     title: "自己紹介",
     greetingTemplate: "こんにちは！東京を拠点に活動するソフトウェアエンジニア、{name}です。",
     paragraphs: [
-      "仕事ではTypeScriptによるNode.jsバックエンドサーバーの開発を中心に担当しています。",
+      "仕事ではTypeScriptによるNode.jsバックエンドサービスの開発を中心に担当しています。",
       "個人では家計管理ツールや2Dゲームを開発しています。",
-      "AIエージェントを活用した仕様駆動の開発スタイルですが、自分でコードを書く楽しさも忘れません。",
+      "開発スタイルはAIエージェントを活用した仕様駆動開発ですが、自分でコードを書く楽しさも忘れません。",
     ],
   },
   tech: {
@@ -39,30 +45,28 @@ export const ja: Dictionary = {
     title: "個人プロジェクト",
     descriptions: {
       utopia:
-        "Firefly IIIと部分互換の軽量・セルフホスト可能な個人向け家計管理API。Rust製。",
+        "Firefly IIIと部分互換の軽量・セルフホスト可能な個人向け家計管理API（Rust製）。",
       xiangke:
-        "Xiangke（相剋; xiāngkè）は三国志に着想を得た、メニュー選択式のターンバトルゲームです。",
+        "Xiangke（相剋、xiāngkè）：三国志に着想を得たコマンド・ターン制バトルゲーム。",
       "pr-agent-runner":
-        "OpenCodeReview（OCR）基盤のAIによるPRレビュー自動化と、レビュー投稿や@メンション応答を行う小型TypeScript CLIです。",
+        "OpenCodeReview（OCR）基盤のAIによるPRレビュー自動化と、GitHub @メンション応答用の小型TypeScript CLI。",
     },
-    viewOnGitHubTemplate: "GitHubで{name}を見る",
-    starsTemplate: "スター {count} 件",
-    forksTemplate: "フォーク {count} 件",
+    viewOnGitHubTemplate: "GitHubで{name}を開く",
     inDevelopment: "開発中",
   },
   stats: {
-    title: "GitHub統計",
+    title: "GitHub 統計",
     recentPushes: "最近のプッシュ",
     pushesSuffix: "直近7日間のプッシュ数",
     activity: "アクティビティ",
-    topRepos: "主要リポジトリ",
+    topRepos: "トップリポジトリ",
     loadingPushes: "最近のプッシュを読み込み中…",
     loadingActivity: "アクティビティを読み込み中…",
-    loadingTopRepos: "主要リポジトリを読み込み中…",
+    loadingTopRepos: "トップリポジトリを読み込み中…",
     loadError:
-      "GitHubアクティビティを読み込めませんでした。しばらくしてから再度お試しください。",
+      "GitHub アクティビティを読み込めませんでした。しばらくしてから再度お試しください。",
     topReposLoadError:
-      "主要リポジトリを読み込めませんでした。しばらくしてから再度お試しください。",
+      "トップリポジトリを読み込めませんでした。しばらくしてから再度お試しください。",
     labels: {
       commits: "コミット",
       pullRequests: "プルリクエスト",
@@ -98,7 +102,7 @@ export const ja: Dictionary = {
     closeLabel: "メールのダイアログを閉じる",
     addressLabel: "メールアドレス",
     copyLabel: "コピー",
-    copiedLabel: "コピーしました",
+    copiedLabel: "コピーしました！",
     composeLabel: "メールを作成",
   },
 };

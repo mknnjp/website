@@ -4,7 +4,7 @@ export const zhCn: Dictionary = {
   meta: {
     title: "牧野 - Portfolio",
     description:
-      "牧野 - 常驻东京的软件工程师，专注于使用 TypeScript、Rust 和 Node.js 的 Web 开发。",
+      "牧野 - 常居东京的软件工程师，专注于使用 TypeScript、Rust 和 Node.js 进行 Web 开发。",
   },
   nav: {
     about: "关于我",
@@ -12,18 +12,24 @@ export const zhCn: Dictionary = {
     personalProjects: "个人项目",
     stats: "统计",
   },
+  header: {
+    openMenuLabel: "打开菜单",
+    closeMenuLabel: "关闭菜单",
+    navLabel: "网站导航",
+    toggleThemeLabel: "切换主题",
+  },
   languageLabel: "语言",
   hero: {
-    subtitle: "常驻东京的软件工程师，专注于 Web 与移动应用开发。",
+    subtitle: "常居东京的软件工程师，专注于 Web 与移动应用开发。",
     avatarAlt: "牧野",
   },
   about: {
     title: "关于我",
-    greetingTemplate: "你好！我是常驻东京的软件工程师{name}。",
+    greetingTemplate: "你好！我是{name}，一名常居东京的软件工程师。",
     paragraphs: [
       "工作中主要使用 TypeScript 开发 Node.js 后端服务。",
-      "个人项目中开发家庭记账工具和 2D 游戏。",
-      "以规范驱动、善用 AI 智能体为主要开发方式，同时不忘亲手写代码的乐趣。",
+      "个人项目中开发个人记账工具和 2D 游戏。",
+      "开发方式以规格驱动为主，结合 AI Agent，同时不忘亲手写代码的乐趣。",
     ],
   },
   tech: {
@@ -38,15 +44,13 @@ export const zhCn: Dictionary = {
     title: "个人项目",
     descriptions: {
       utopia:
-        "轻量、可自托管的个人记账 API，部分兼容 Firefly III，使用 Rust 编写。",
+        "轻量、可自托管的个人记账 API，部分兼容 Firefly III；Rust 编写。",
       xiangke:
-        "Xiangke（相剋; xiāngkè）是一款以三国为灵感、菜单驱动战斗的回合制游戏。",
+        "Xiangke（相剋，xiāngkè）：以《三国演义》为灵感的指令式回合制战斗游戏。",
       "pr-agent-runner":
-        "基于 OpenCodeReview（OCR）的 AI PR 评审自动化，以及用于发布评审和响应 @提及命令的小型 TypeScript CLI。",
+        "基于 OpenCodeReview（OCR）的 AI PR 评审自动化；用于 GitHub @mention 响应的小型 TypeScript CLI。",
     },
-    viewOnGitHubTemplate: "在 GitHub 上查看{name}",
-    starsTemplate: "{count} 个 Star",
-    forksTemplate: "{count} 个 Fork",
+    viewOnGitHubTemplate: "在 GitHub 上查看 {name}",
     inDevelopment: "开发中",
   },
   stats: {
@@ -54,28 +58,27 @@ export const zhCn: Dictionary = {
     recentPushes: "近期推送",
     pushesSuffix: "过去 7 天内的推送次数",
     activity: "动态",
-    topRepos: "热门仓库",
+    topRepos: "Top 仓库",
     loadingPushes: "正在加载近期推送…",
     loadingActivity: "正在加载动态…",
-    loadingTopRepos: "正在加载热门仓库…",
+    loadingTopRepos: "正在加载 Top 仓库…",
     loadError: "无法加载 GitHub 动态，请稍后再试。",
-    topReposLoadError: "无法加载热门仓库，请稍后再试。",
+    topReposLoadError: "无法加载 Top 仓库，请稍后再试。",
     labels: {
       commits: "提交",
       pullRequests: "拉取请求",
       codeReview: "代码评审",
-      issues: "议题",
+      issues: "问题",
     },
   },
   footer: {
     rightsSuffix: "版权所有。",
-    licensesButton: "第三方许可",
+    licensesButton: "第三方许可证",
   },
   licensesModal: {
-    title: "第三方许可",
-    description:
-      "本站使用开源软件构建，感谢各项目的维护者与贡献者。",
-    closeLabel: "关闭第三方许可对话框",
+    title: "第三方许可证",
+    description: "本站使用开源软件构建，感谢各项目的维护者与贡献者。",
+    closeLabel: "关闭第三方许可证对话框",
     categories: {
       runtime: "运行时",
       buildTooling: "构建工具",
@@ -89,13 +92,13 @@ export const zhCn: Dictionary = {
     qrAlt: "QQ 二维码",
   },
   emailModal: {
-    openLabel: "显示电子邮件地址",
-    title: "电子邮件",
-    description: "欢迎通过电子邮件联系我。",
-    closeLabel: "关闭电子邮件对话框",
-    addressLabel: "电子邮件地址",
+    openLabel: "显示邮件地址",
+    title: "邮件",
+    description: "欢迎通过邮件联系我。",
+    closeLabel: "关闭邮件对话框",
+    addressLabel: "邮件地址",
     copyLabel: "复制",
-    copiedLabel: "已复制",
-    composeLabel: "撰写邮件",
+    copiedLabel: "已复制！",
+    composeLabel: "写邮件",
   },
 };
