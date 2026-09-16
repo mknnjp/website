@@ -1,10 +1,13 @@
 ---
-import { Icon } from "astro-icon/components";
 import Container from "./Container.astro";
+import LocaleMenu from "./header/LocaleMenu.astro";
+import MobileMenuPanel from "./header/MobileMenuPanel.astro";
+import MobileMenuToggle from "./header/MobileMenuToggle.astro";
+import NavLinks from "./header/NavLinks.astro";
+import ThemeToggle from "./header/ThemeToggle.astro";
 import { SITE_NAME } from "../lib/site.ts";
 import {
 	DEFAULT_LOCALE,
-	LOCALES,
 	LOCALE_STORAGE_KEY,
 	type Locale,
 } from "../i18n/locales.ts";
@@ -22,136 +25,58 @@ const {
 	languageLabel = "Language",
 } = Astro.props;
 
-const NAV_LINKS = [
-	{ href: "#about", label: nav?.about ?? "About" },
-	{ href: "#tech", label: nav?.tech ?? "Tech Stack" },
-	{
-		href: "#personalProjects",
-		label: nav?.personalProjects ?? "Personal Project",
-	},
-	{ href: "#stats", label: nav?.stats ?? "Stats" },
-];
-
-const navLinkClass =
-	"text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors";
+const menuText =
+	locale === "ja"
+		? {
+				open: "メニューを開く",
+				close: "メニューを閉じる",
+				nav: "サイトナビゲーション",
+			}
+		: locale === "zh-cn"
+			? { open: "打开菜单", close: "关闭菜单", nav: "网站导航" }
+			: { open: "Open menu", close: "Close menu", nav: "Site navigation" };
 ---
 
 <header
 	class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800"
 >
-	<Container class="py-4 flex justify-between items-center">
-		<a href="#" class="text-xl font-bold text-slate-900 dark:text-white"
+	<Container class="py-4 flex justify-between items-center gap-2">
+		<a
+			href="#"
+			class="text-xl font-bold text-slate-900 dark:text-white shrink-0 truncate"
 			>{SITE_NAME}</a
 		>
-		<nav class="flex items-center gap-6 text-sm">
-			{
-				NAV_LINKS.map((link) => (
-					<a href={link.href} class={navLinkClass}>
-						{link.label}
-					</a>
-				))
-			}
+		<div class="flex items-center gap-2 min-w-0">
+			<NavLinks nav={nav} variant="desktop" navLabel={menuText.nav} />
 			<div class="flex items-center gap-2">
-				<button
-					id="theme-toggle"
-					class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-					aria-label="Toggle theme"
-				>
-					<Icon name="lucide:sun" id="theme-icon-sun" class="h-5 w-5" />
-					<Icon
-						name="lucide:moon"
-						id="theme-icon-moon"
-						class="h-5 w-5 hidden"
-					/>
-				</button>
-				<div class="relative">
-					<button
-						id="locale-toggle"
-						class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-sm font-semibold min-w-10"
-						aria-label={languageLabel}
-						aria-haspopup="true"
-						aria-expanded="false"
-					>
-						{LOCALES.find((entry) => entry.code === locale)?.shortLabel ?? "EN"}
-					</button>
-					<div
-						id="locale-menu"
-						class="hidden absolute right-0 mt-2 w-36 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg py-1"
-						role="menu"
-					>
-						{
-							LOCALES.map((entry) => (
-								<a
-									href={entry.path}
-									role="menuitem"
-									data-locale={entry.code}
-									aria-current={entry.code === locale ? "true" : undefined}
-									class={`block px-4 py-2 text-sm transition-colors hover:bg-slate-100 dark:hover:bg-slate-700 ${
-										entry.code === locale
-											? "text-slate-900 dark:text-white font-semibold"
-											: "text-slate-600 dark:text-slate-300"
-									}`}
-								>
-									{entry.fullName}
-								</a>
-							))
-						}
-					</div>
-				</div>
+				<ThemeToggle />
+				<LocaleMenu
+					locale={locale}
+					languageLabel={languageLabel}
+					storageKey={LOCALE_STORAGE_KEY}
+				/>
+				<MobileMenuToggle
+					openLabel={menuText.open}
+					closeLabel={menuText.close}
+				/>
 			</div>
-		</nav>
+		</div>
 	</Container>
 </header>
+<MobileMenuPanel nav={nav} navLabel={menuText.nav} />
 
-<script is:inline define:vars={{ storageKey: LOCALE_STORAGE_KEY }}>
-	const themeToggle = document.getElementById("theme-toggle");
-	const themeIconSun = document.getElementById("theme-icon-sun");
-	const themeIconMoon = document.getElementById("theme-icon-moon");
-	const localeToggle = document.getElementById("locale-toggle");
-	const localeMenu = document.getElementById("locale-menu");
-	const isDark = () => document.documentElement.classList.contains("dark");
+<script>
+	import { initLocaleMenu } from "../scripts/locale-menu.ts";
+	import { initMobileMenu } from "../scripts/mobile-menu.ts";
+	import { LOCALE_STORAGE_KEY } from "../i18n/locales.ts";
 
-	const updateIcon = () => {
-		themeIconSun?.classList.toggle("hidden", isDark());
-		themeIconMoon?.classList.toggle("hidden", !isDark());
-	};
+	const toggle = document.getElementById("mobile-menu-toggle");
 
-	themeToggle?.addEventListener("click", () => {
-		document.documentElement.classList.toggle("dark");
-		updateIcon();
+	initLocaleMenu(LOCALE_STORAGE_KEY);
+	initMobileMenu({
+		openLabel: toggle?.getAttribute("data-open-label") ?? "Open menu",
+		closeLabel: toggle?.getAttribute("data-close-label") ?? "Close menu",
+		closeDelay: 300,
+		desktopQuery: "(min-width: 768px)",
 	});
-
-	localeToggle?.addEventListener("click", () => {
-		const expanded = localeToggle.getAttribute("aria-expanded") === "true";
-		localeToggle.setAttribute("aria-expanded", String(!expanded));
-		localeMenu?.classList.toggle("hidden", expanded);
-	});
-
-	document.addEventListener("click", (event) => {
-		if (
-			localeMenu &&
-			!localeMenu.classList.contains("hidden") &&
-			event.target instanceof Node &&
-			!localeToggle?.contains(event.target) &&
-			!localeMenu.contains(event.target)
-		) {
-			localeMenu.classList.add("hidden");
-			localeToggle?.setAttribute("aria-expanded", "false");
-		}
-	});
-
-	localeMenu?.querySelectorAll("a[data-locale]").forEach((link) => {
-		link.addEventListener("click", () => {
-			try {
-				const nextLocale = link.getAttribute("data-locale");
-				if (nextLocale) {
-					localStorage.setItem(storageKey, nextLocale);
-				}
-			} catch {
-				// Ignore storage errors (private mode, quota exceeded)
-			}
-		});
-	});
-
-	updateIcon();
 </script>
