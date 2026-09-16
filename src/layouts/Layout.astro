@@ -25,6 +25,7 @@ const localeInfo = getLocaleInfo(locale);
 const siteUrl = Astro.site?.toString().replace(/\/$/, "");
 const localePath =
 	localeInfo.path === "/" ? "" : localeInfo.path.replace(/\/$/, "");
+const THEME_STORAGE_KEY = "theme";
 const canonicalUrl =
 	canonical ?? (siteUrl ? `${siteUrl}${localePath}/` : undefined);
 const fontHref =
@@ -43,19 +44,18 @@ const fontHref =
 		<script
 			is:inline
 			define:vars={{
-				storageKey: LOCALE_STORAGE_KEY,
-				currentPath: localeInfo.path,
+				themeStorageKey: THEME_STORAGE_KEY,
 			}}
 		>
 			try {
-				const saved = localStorage.getItem(storageKey);
-				const targets = { en: "/", ja: "/ja/", "zh-cn": "/zh-cn/" };
-				const target = saved ? targets[saved] : null;
-				if (target && target !== currentPath) {
-					window.location.replace(target);
+				const savedTheme = localStorage.getItem(themeStorageKey);
+				if (savedTheme === "dark") {
+					document.documentElement.classList.add("dark");
+				} else if (savedTheme === "light") {
+					document.documentElement.classList.remove("dark");
 				}
 			} catch {
-				// Ignore storage errors (private mode, quota exceeded)
+				// Ignore storage errors
 			}
 		</script>
 		<meta name="description" content={description} />

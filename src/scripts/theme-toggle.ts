@@ -11,6 +11,11 @@ export const initThemeToggle = (): void => {
 
   themeToggle?.addEventListener("click", () => {
     document.documentElement.classList.toggle("dark");
+    try {
+      localStorage.setItem("theme", isDark() ? "dark" : "light");
+    } catch {
+      // Ignore storage errors
+    }
     updateIcon();
   });
 
