@@ -89,4 +89,14 @@ export const en: Dictionary = {
     closeLabel: "Close QQ QR code dialog",
     qrAlt: "QQ QR code",
   },
+  emailModal: {
+    openLabel: "Show email address",
+    title: "Email",
+    description: "Feel free to reach out via email.",
+    closeLabel: "Close email dialog",
+    addressLabel: "Email address",
+    copyLabel: "Copy",
+    copiedLabel: "Copied!",
+    composeLabel: "Compose email",
+  },
 };
