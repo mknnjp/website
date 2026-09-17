@@ -33,6 +33,7 @@ export const TECH_STACK: TechItem[] = [
   // Frameworks & Tools
   { label: "Ajv", icon: "simple-icons:ajv", category: "frameworksTools", color: "cyan" },
   { label: "Astro", icon: "simple-icons:astro", category: "frameworksTools", color: "purple" },
+  { label: "AWS", icon: "simple-icons:amazonwebservices", category: "frameworksTools", color: "orange" },
   { label: "Axum", icon: "simple-icons:rust", category: "frameworksTools", color: "orange" },
   { label: "Docker", icon: "simple-icons:docker", category: "frameworksTools", color: "blue" },
   { label: "ESLint", icon: "simple-icons:eslint", category: "frameworksTools", color: "indigo" },
