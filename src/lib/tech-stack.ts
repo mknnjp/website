@@ -4,7 +4,7 @@
  * Icons use Iconify identifiers: simple-icons:* (CC0) preferred, lucide:* as fallback.
  */
 
-export type TechCategory = "languages" | "frameworksTools" | "other";
+export type TechCategory = "languages" | "frameworksTools" | "infrastructures" | "other";
 
 export interface TechItem {
   /** Display label (kept in English as industry standard) */
@@ -33,23 +33,23 @@ export const TECH_STACK: TechItem[] = [
   // Frameworks & Tools
   { label: "Ajv", icon: "simple-icons:ajv", category: "frameworksTools", color: "cyan" },
   { label: "Astro", icon: "simple-icons:astro", category: "frameworksTools", color: "purple" },
-  { label: "AWS", icon: "simple-icons:amazonwebservices", category: "frameworksTools", color: "orange" },
+  { label: "AWS", icon: "simple-icons:amazonwebservices", category: "infrastructures", color: "orange" },
   { label: "Axum", icon: "simple-icons:rust", category: "frameworksTools", color: "orange" },
-  { label: "Docker", icon: "simple-icons:docker", category: "frameworksTools", color: "blue" },
+  { label: "Docker", icon: "simple-icons:docker", category: "infrastructures", color: "blue" },
   { label: "ESLint", icon: "simple-icons:eslint", category: "frameworksTools", color: "indigo" },
   { label: "Fastify", icon: "simple-icons:fastify", category: "frameworksTools", color: "indigo" },
-  { label: "GitHub Actions", icon: "simple-icons:githubactions", category: "frameworksTools", color: "blue" },
+  { label: "GitHub Actions", icon: "simple-icons:githubactions", category: "infrastructures", color: "blue" },
   { label: "Godot", icon: "simple-icons:godotengine", category: "frameworksTools", color: "blue" },
   { label: "Hono", icon: "simple-icons:hono", category: "frameworksTools", color: "orange" },
   { label: "Jest", icon: "simple-icons:jest", category: "frameworksTools", color: "red" },
   { label: "Just", icon: "simple-icons:just", category: "frameworksTools", color: "indigo" },
   { label: "Node.js", icon: "simple-icons:nodedotjs", category: "frameworksTools", color: "green" },
   { label: "Oxc", icon: "simple-icons:oxc", category: "frameworksTools", color: "cyan" },
-  { label: "Postgres", icon: "simple-icons:postgresql", category: "frameworksTools", color: "blue" },
+  { label: "Postgres", icon: "simple-icons:postgresql", category: "infrastructures", color: "blue" },
   { label: "Prisma", icon: "simple-icons:prisma", category: "frameworksTools", color: "indigo" },
-  { label: "Pulumi", icon: "simple-icons:pulumi", category: "frameworksTools", color: "purple" },
+  { label: "Pulumi", icon: "simple-icons:pulumi", category: "infrastructures", color: "purple" },
   { label: "SwiftUI", icon: "simple-icons:swift", category: "frameworksTools", color: "blue" },
-  { label: "Traefik", icon: "simple-icons:traefikproxy", category: "frameworksTools", color: "red" },
+  { label: "Traefik", icon: "simple-icons:traefikproxy", category: "infrastructures", color: "red" },
   { label: "Vitest", icon: "simple-icons:vitest", category: "frameworksTools", color: "green" },
   { label: "Vue.js", icon: "simple-icons:vuedotjs", category: "frameworksTools", color: "green" },
   { label: "Zod", icon: "simple-icons:zod", category: "frameworksTools", color: "blue" },

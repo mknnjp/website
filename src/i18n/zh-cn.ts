@@ -37,6 +37,7 @@ export const zhCn: Dictionary = {
     categories: {
       languages: "语言",
       frameworksTools: "框架与工具",
+      infrastructures: "基础设施",
       other: "其他",
     },
   },

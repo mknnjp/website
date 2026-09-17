@@ -30,6 +30,7 @@ export interface Dictionary {
     categories: {
       languages: string;
       frameworksTools: string;
+      infrastructures: string;
       other: string;
     };
   };

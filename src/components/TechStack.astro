@@ -1,7 +1,10 @@
 ---
 import Section from "./Section.astro";
 import TechCategory from "./TechCategory.astro";
-import { getTechByCategory, type TechCategory as TechCategoryType } from "../lib/tech-stack.ts";
+import {
+	getTechByCategory,
+	type TechCategory as TechCategoryType,
+} from "../lib/tech-stack.ts";
 import type { Dictionary } from "../i18n/dictionary.ts";
 
 interface Props {
@@ -15,25 +18,33 @@ const title = tech?.title ?? "Tech Stack";
 // Group tech items by category
 const languages = getTechByCategory("languages");
 const frameworksTools = getTechByCategory("frameworksTools");
+const infrastructures = getTechByCategory("infrastructures");
 const other = getTechByCategory("other");
 ---
 
 <Section id="tech" title={title}>
-  <TechCategory
-    category="languages"
-    title={tech?.categories.languages ?? "Languages"}
-    items={languages}
-  />
-  <TechCategory
-    category="frameworksTools"
-    title={tech?.categories.frameworksTools ?? "Frameworks & Tools"}
-    items={frameworksTools}
-  />
-  {other.length > 0 && (
-    <TechCategory
-      category="other"
-      title={tech?.categories.other ?? "Other"}
-      items={other}
-    />
-  )}
+	<TechCategory
+		category="languages"
+		title={tech?.categories.languages ?? "Languages"}
+		items={languages}
+	/>
+	<TechCategory
+		category="frameworksTools"
+		title={tech?.categories.frameworksTools ?? "Frameworks & Tools"}
+		items={frameworksTools}
+	/>
+	<TechCategory
+		category="infrastructures"
+		title={tech?.categories.infrastructures ?? "Infrastructures"}
+		items={infrastructures}
+	/>
+	{
+		other.length > 0 && (
+			<TechCategory
+				category="other"
+				title={tech?.categories.other ?? "Other"}
+				items={other}
+			/>
+		)
+	}
 </Section>
