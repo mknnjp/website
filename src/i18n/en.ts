@@ -38,6 +38,7 @@ export const en: Dictionary = {
     categories: {
       languages: "Languages",
       frameworksTools: "Frameworks & Tools",
+      infrastructures: "Infrastructures",
       other: "Other",
     },
   },

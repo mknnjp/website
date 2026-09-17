@@ -38,6 +38,7 @@ export const ja: Dictionary = {
     categories: {
       languages: "言語",
       frameworksTools: "フレームワーク・ツール",
+      infrastructures: "インフラストラクチャ",
       other: "その他",
     },
   },
