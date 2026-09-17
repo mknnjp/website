@@ -51,6 +51,7 @@ export const en: Dictionary = {
         "Xiangke (相剋, xiāngkè): command turn-based battle game inspired by Romance of the Three Kingdoms.",
       "pr-agent-runner":
         "AI-powered PR review automation on OpenCodeReview (OCR); TypeScript CLI for GitHub @mention responses.",
+      website: "This site!",
     },
     viewOnGitHubTemplate: "View {name} on GitHub",
     inDevelopment: "In Development",

@@ -51,6 +51,7 @@ export const ja: Dictionary = {
         "Xiangke（相剋、xiāngkè）：三国志に着想を得たコマンド・ターン制バトルゲーム。",
       "pr-agent-runner":
         "OpenCodeReview（OCR）基盤のAIによるPRレビュー自動化と、GitHub @メンション応答用の小型TypeScript CLI。",
+      website: "このサイト！",
     },
     viewOnGitHubTemplate: "GitHubで{name}を開く",
     inDevelopment: "開発中",
