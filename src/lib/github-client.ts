@@ -1,6 +1,9 @@
+import { Octokit } from "@octokit/core";
+import { paginateRest } from "@octokit/plugin-paginate-rest";
+import { RequestError } from "@octokit/request-error";
 import { USERNAME } from "./site.ts";
 
-export const GITHUB_API = "https://api.github.com";
+export const USER_AGENT = "mknnjp-website-build";
 export const PER_PAGE = 100;
 export const MAX_PAGES = 10;
 export const RECENT_DAYS = 7;
@@ -91,6 +94,26 @@ export const buildActivityStats = (events: EventResponse[]): ActivityStats => {
   };
 }
 
+/** Shared Octokit client (unauthenticated; browser safe) */
+const OctokitWithPaginate = Octokit.defaults({
+  userAgent: USER_AGENT,
+  plugins: [paginateRest],
+});
+
+export const octokit = new OctokitWithPaginate();
+
+/** Normalize Octokit RequestError into the plain-error contract used by callers */
+const toFailure = (error: unknown): Error => {
+  if (error instanceof RequestError) {
+    const remaining = error.response?.headers["x-ratelimit-remaining"];
+    return new Error(
+      `GitHub API request failed: ${error.status} ${error.message}` +
+      (remaining !== undefined ? ` (rate-limit remaining: ${remaining})` : ""),
+    );
+  }
+  return error instanceof Error ? error : new Error(String(error));
+};
+
 /** Fetch public events within the recent window using pagination (browser safe) */
 export const fetchRecentEvents = async (
   username: string = USERNAME,
@@ -98,40 +121,39 @@ export const fetchRecentEvents = async (
 ): Promise<EventResponse[]> => {
   const cutoff = getDaysAgo(days);
   const allEvents: EventResponse[] = [];
-  let page = 1;
+  let page = 0;
 
-  while (true) {
-    const response = await fetch(
-      `${GITHUB_API}/users/${username}/events/public?per_page=${PER_PAGE}&page=${page}`,
-      {
-        headers: {
-          Accept: "application/vnd.github+json",
-        },
-      },
+  try {
+    const iterator = octokit.paginate.iterator(
+      "GET /users/{username}/events/public",
+      { username, per_page: PER_PAGE },
     );
-    if (!response.ok) {
-      throw new Error(
-        `GitHub API request failed: ${response.status} ${response.statusText}`,
-      );
-    }
-    const events = (await response.json()) as EventResponse[];
-    if (events.length === 0) {
-      break;
-    }
 
-    const oldestEvent = events[events.length - 1];
-    if (oldestEvent.created_at < cutoff) {
-      allEvents.push(
-        ...events.filter((event) => event.created_at >= cutoff),
-      );
-      break;
-    }
+    for await (const response of iterator) {
+      page += 1;
+      const events = (response.data ?? []).map((event) => ({
+        type: event.type ?? "Unknown",
+        created_at: event.created_at ?? "",
+      }));
+      if (events.length === 0) {
+        break;
+      }
 
-    allEvents.push(...events);
-    page += 1;
-    if (page > MAX_PAGES) {
-      break;
+      const oldestEvent = events[events.length - 1];
+      if (oldestEvent.created_at < cutoff) {
+        allEvents.push(
+          ...events.filter((event) => event.created_at >= cutoff),
+        );
+        break;
+      }
+
+      allEvents.push(...events);
+      if (page >= MAX_PAGES) {
+        break;
+      }
     }
+  } catch (error) {
+    throw toFailure(error);
   }
 
   return allEvents;
@@ -209,23 +231,19 @@ interface CachedTopRepos {
 export const fetchTopRepos = async (
   limit: number = TOP_REPOS_LIMIT,
 ): Promise<TopRepo[]> => {
-  const response = await fetch(
-    `${GITHUB_API}/users/${USERNAME}/repos?per_page=${PER_PAGE}&type=owner&sort=pushed&direction=desc`,
-    {
-      headers: {
-        Accept: "application/vnd.github+json",
-        "User-Agent": "mknnjp-website-build",
-      },
-    },
-  );
-  if (!response.ok) {
-    const remaining = response.headers.get("x-ratelimit-remaining");
-    throw new Error(
-      `GitHub API request failed: ${response.status} ${response.statusText}` +
-      (remaining !== null ? ` (rate-limit remaining: ${remaining})` : ""),
-    );
+  let repos: RepoResponse[];
+  try {
+    const response = await octokit.rest.repos.listForUser({
+      username: USERNAME,
+      per_page: PER_PAGE,
+      type: "owner",
+      sort: "pushed",
+      direction: "desc",
+    });
+    repos = response.data as unknown as RepoResponse[];
+  } catch (error) {
+    throw toFailure(error);
   }
-  const repos = (await response.json()) as RepoResponse[];
   return repos
     .filter((repo) => !repo.fork)
     .sort((a, b) => b.pushed_at.localeCompare(a.pushed_at))
