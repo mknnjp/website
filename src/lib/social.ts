@@ -7,6 +7,7 @@ export interface SocialLink {
 }
 
 export const SOCIAL_LINKS: SocialLink[] = [
+  { label: "BiliBili", href: "https://space.bilibili.com/1157704322", icon: "simple-icons:bilibili" },
   { label: "Bluesky", href: "https://bsky.app/profile/mknn.jp", icon: "simple-icons:bluesky" },
   {
     label: "Discord",
