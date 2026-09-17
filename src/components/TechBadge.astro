@@ -1,0 +1,20 @@
+---
+import Badge from "./Badge.astro";
+import { Icon } from "astro-icon/components";
+import type { TechItem } from "../lib/tech-stack.ts";
+
+interface Props {
+  item: TechItem;
+  size?: "sm" | "md";
+}
+
+const { item, size = "md" } = Astro.props;
+
+// iOS-style: use Badge component with tech-specific enhancements
+// The Badge component already has 9 colors and 2 sizes with dark mode support
+---
+
+<Badge color={item.color} size={size} class="flex items-center gap-1.5 whitespace-nowrap transition-all duration-200 ease-out hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 dark:focus-visible:ring-offset-slate-900">
+  <Icon name={item.icon} class="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+  <span class="font-medium">{item.label}</span>
+</Badge>
