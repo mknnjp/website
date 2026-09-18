@@ -1,0 +1,118 @@
+---
+import ExternalLink from "./ExternalLink.astro";
+import SocialIcon from "./SocialIcon.astro";
+import { SOCIAL_LINKS } from "../lib/social.ts";
+import type { Dictionary } from "../i18n/dictionary.ts";
+import type { Locale } from "../i18n/locales.ts";
+
+type Variant = "hero" | "footer" | "compact";
+
+interface Props {
+  /** Variant determines the visual style */
+  variant: Variant;
+  /** Locale for i18n labels */
+  locale?: Locale;
+  /** QQ modal labels */
+  qqModal?: Dictionary["qqModal"];
+  /** Email modal labels */
+  emailModal?: Dictionary["emailModal"];
+  /** Custom links (defaults to SOCIAL_LINKS) */
+  links?: typeof SOCIAL_LINKS;
+}
+
+const {
+  variant = "hero",
+  locale = "en",
+  qqModal,
+  emailModal,
+  links = SOCIAL_LINKS,
+} = Astro.props;
+
+const qqOpenLabel = qqModal?.openLabel ?? "Show QQ QR code";
+const emailOpenLabel = emailModal?.openLabel ?? "Show email address";
+
+// Variant-specific base classes
+const variantClasses: Record<Variant, string> = {
+  hero: "flex items-center gap-2 px-5 py-2.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors",
+  footer:
+    "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors",
+  compact:
+    "flex items-center gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors",
+};
+
+const iconSize: Record<Variant, string> = {
+  hero: "h-5 w-5",
+  footer: "h-5 w-5",
+  compact: "h-4 w-4",
+};
+
+const showLabel = variant === "hero";
+---
+
+<div
+  class="flex flex-wrap justify-center gap-4"
+  role="list"
+  aria-label="Social links"
+>
+  {
+    links.map((link) => {
+      const baseClass = variantClasses[variant];
+      const size = iconSize[variant];
+
+      if (link.modal === "qq") {
+        return (
+          <button
+            type="button"
+            data-qq-open
+            aria-label={qqOpenLabel}
+            class={baseClass}
+            role="listitem"
+          >
+            <SocialIcon
+              icon={link.icon}
+              imgSrc={link.imgSrc}
+              label={link.label}
+              class={size}
+            />
+            {showLabel && <span>{link.label}</span>}
+          </button>
+        );
+      }
+      if (link.modal === "email") {
+        return (
+          <button
+            type="button"
+            data-email-open
+            aria-label={emailOpenLabel}
+            class={baseClass}
+            role="listitem"
+          >
+            <SocialIcon
+              icon={link.icon}
+              imgSrc={link.imgSrc}
+              label={link.label}
+              class={size}
+            />
+            {showLabel && <span>{link.label}</span>}
+          </button>
+        );
+      }
+      return (
+        <ExternalLink
+          href={link.href!}
+          ariaLabel={link.label}
+          variant={variant === "hero" ? "pill" : "muted"}
+          class={baseClass}
+        >
+          <SocialIcon
+            icon={link.icon}
+            imgSrc={link.imgSrc}
+            label={link.label}
+            class={size}
+          />
+          {showLabel && <span>{link.label}</span>}
+        </ExternalLink>
+      );
+    })
+  }
+</div>

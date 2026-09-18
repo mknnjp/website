@@ -1,10 +1,32 @@
-export interface SocialLink {
+/**
+ * Social Link Types
+ * Discriminated union for type-safe social link handling.
+ * - External links MUST have href
+ * - Modal links (QQ, Email) have modal property instead of href
+ */
+
+type SocialLinkBase = {
   label: string;
-  href?: string;
   icon?: string;
   imgSrc?: string;
-  modal?: "qq" | "email";
-}
+};
+
+type QqLink = SocialLinkBase & {
+  modal: "qq";
+  href?: never;
+};
+
+type EmailLink = SocialLinkBase & {
+  modal: "email";
+  href?: never;
+};
+
+type ExternalLink = SocialLinkBase & {
+  href: string;
+  modal?: never;
+};
+
+export type SocialLink = QqLink | EmailLink | ExternalLink;
 
 export const SOCIAL_LINKS: SocialLink[] = [
   { label: "BiliBili", href: "https://space.bilibili.com/1157704322", icon: "simple-icons:bilibili" },
