@@ -32,6 +32,21 @@ export const LICENSE_CATEGORIES: LicenseCategory[] = [
         href: "https://github.com/natemoo-re/astro-icon",
         note: "— MIT License",
       },
+      {
+        label: `@octokit/core ${version("@octokit/core")}`,
+        href: "https://github.com/octokit/core.js",
+        note: "— MIT License",
+      },
+      {
+        label: `@octokit/plugin-paginate-rest ${version("@octokit/plugin-paginate-rest")}`,
+        href: "https://github.com/octokit/plugin-paginate-rest.js",
+        note: "— MIT License",
+      },
+      {
+        label: `@octokit/request-error ${version("@octokit/request-error")}`,
+        href: "https://github.com/octokit/request-error.js",
+        note: "— MIT License",
+      },
     ],
   },
   {

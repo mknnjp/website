@@ -95,9 +95,8 @@ export const buildActivityStats = (events: EventResponse[]): ActivityStats => {
 }
 
 /** Shared Octokit client (unauthenticated; browser safe) */
-const OctokitWithPaginate = Octokit.defaults({
+const OctokitWithPaginate = Octokit.plugin(paginateRest).defaults({
   userAgent: USER_AGENT,
-  plugins: [paginateRest],
 });
 
 export const octokit = new OctokitWithPaginate();
@@ -139,16 +138,11 @@ export const fetchRecentEvents = async (
         break;
       }
 
-      const oldestEvent = events[events.length - 1];
-      if (oldestEvent.created_at < cutoff) {
-        allEvents.push(
-          ...events.filter((event) => event.created_at >= cutoff),
-        );
-        break;
-      }
-
-      allEvents.push(...events);
-      if (page >= MAX_PAGES) {
+      const recentEvents = events.filter(
+        (event) => event.created_at >= cutoff,
+      );
+      allEvents.push(...recentEvents);
+      if (recentEvents.length === 0 || page >= MAX_PAGES) {
         break;
       }
     }
@@ -215,14 +209,6 @@ export interface TopRepo {
   language: string;
 }
 
-interface RepoResponse {
-  name: string;
-  html_url: string;
-  language: string | null;
-  fork: boolean;
-  pushed_at: string;
-}
-
 interface CachedTopRepos {
   fetchedAt: number;
   repos: TopRepo[];
@@ -231,29 +217,29 @@ interface CachedTopRepos {
 export const fetchTopRepos = async (
   limit: number = TOP_REPOS_LIMIT,
 ): Promise<TopRepo[]> => {
-  let repos: RepoResponse[];
   try {
-    const response = await octokit.rest.repos.listForUser({
+    const response = await octokit.request("GET /users/{username}/repos", {
       username: USERNAME,
       per_page: PER_PAGE,
       type: "owner",
       sort: "pushed",
       direction: "desc",
     });
-    repos = response.data as unknown as RepoResponse[];
+    return response.data
+      .filter((repo) => !repo.fork)
+      .sort((a, b) =>
+        (b.pushed_at ?? "").localeCompare(a.pushed_at ?? ""),
+      )
+      .slice(0, limit)
+      .map((repo) => ({
+        name: repo.name,
+        htmlUrl: repo.html_url,
+        language: repo.language ?? FALLBACK_LANGUAGE,
+      }));
   } catch (error) {
     throw toFailure(error);
   }
-  return repos
-    .filter((repo) => !repo.fork)
-    .sort((a, b) => b.pushed_at.localeCompare(a.pushed_at))
-    .slice(0, limit)
-    .map((repo) => ({
-      name: repo.name,
-      htmlUrl: repo.html_url,
-      language: repo.language ?? FALLBACK_LANGUAGE,
-    }));
-}
+};
 
 export const loadCachedTopRepos = (
   now: number = Date.now(),
