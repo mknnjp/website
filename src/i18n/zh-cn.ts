@@ -50,6 +50,7 @@ export const zhCn: Dictionary = {
         "Xiangke（相剋，xiāngkè）：以《三国演义》为灵感的指令式回合制战斗游戏。",
       "pr-agent-runner":
         "基于 OpenCodeReview（OCR）的 AI PR 评审自动化；用于 GitHub @mention 响应的小型 TypeScript CLI。",
+      website: "这个网站！",
     },
     viewOnGitHubTemplate: "在 GitHub 上查看 {name}",
     inDevelopment: "开发中",
