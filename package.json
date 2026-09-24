@@ -7,13 +7,17 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "check": "astro check",
+    "build": "astro check && astro build",
     "preview": "astro preview",
     "astro": "astro",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix"
   },
   "dependencies": {
+    "@octokit/core": "^7.0.8",
+    "@octokit/plugin-paginate-rest": "^15.0.0",
+    "@octokit/request-error": "^7.1.2",
     "astro": "^7.2.0",
     "astro-icon": "1.1.5"
   },
