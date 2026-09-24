@@ -55,4 +55,11 @@ export const PROJECTS: Project[] = [
     descriptionKey: "pr-agent-runner",
     repoUrl: "https://github.com/mknnjp/pr-agent-runner",
   },
+  {
+    name: "website",
+    language: "TypeScript",
+    languageColor: "blue",
+    descriptionKey: "website",
+    repoUrl: "https://github.com/mknnjp/website",
+  },
 ];
