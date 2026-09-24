@@ -3,7 +3,7 @@ import { Icon } from "astro-icon/components";
 import Section from "./Section.astro";
 import Card from "./Card.astro";
 import Badge from "./Badge.astro";
-import { USERNAME } from "../lib/site.ts";
+import { PROJECTS } from "../lib/projects.ts";
 import type { Dictionary } from "../i18n/dictionary.ts";
 import { formatTemplate } from "../i18n/index.ts";
 
@@ -12,43 +12,6 @@ interface Props {
 }
 
 const { personalProjects } = Astro.props;
-
-interface Project {
-	name: string;
-	language: string;
-	languageColor: "blue" | "orange";
-	stars?: number;
-	forks?: number;
-	inDevelopment?: boolean;
-}
-
-const PROJECTS: Project[] = [
-	{
-		name: "utopia",
-		language: "Rust",
-		languageColor: "orange",
-		stars: 1,
-		inDevelopment: true,
-	},
-	{
-		name: "xiangke",
-		language: "Rust",
-		languageColor: "orange",
-		stars: 1,
-		forks: 1,
-		inDevelopment: true,
-	},
-	{
-		name: "pr-agent-runner",
-		language: "TypeScript",
-		languageColor: "blue",
-	},
-	{
-		name: "website",
-		language: "TypeScript",
-		languageColor: "blue",
-	},
-];
 
 const title = personalProjects?.title ?? "Personal Projects";
 const descriptions = personalProjects?.descriptions ?? {};
@@ -64,7 +27,7 @@ const viewOnGitHubTemplate =
 				<Card
 					as="a"
 					hoverable
-					href={`https://github.com/${USERNAME}/${project.name}`}
+					href={project.repoUrl}
 					target="_blank"
 					rel="noopener noreferrer"
 					ariaLabel={formatTemplate(viewOnGitHubTemplate, {
@@ -87,7 +50,7 @@ const viewOnGitHubTemplate =
 						</Badge>
 					</div>
 					<p class="text-slate-600 dark:text-slate-300 mb-3">
-						{descriptions[project.name] ?? ""}
+						{descriptions[project.descriptionKey] ?? ""}
 					</p>
 					{(project.stars || project.forks) && (
 						<div class="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
