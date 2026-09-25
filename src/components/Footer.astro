@@ -13,6 +13,7 @@ interface Props {
 	footer?: Dictionary["footer"];
 	licensesModal?: Dictionary["licensesModal"];
 	qqModal?: Dictionary["qqModal"];
+	wechatModal?: Dictionary["wechatModal"];
 	emailModal?: Dictionary["emailModal"];
 }
 
@@ -21,6 +22,7 @@ const {
 	footer,
 	licensesModal,
 	qqModal,
+	wechatModal,
 	emailModal,
 } = Astro.props;
 const displayName = DISPLAY_NAMES[locale];
@@ -47,11 +49,12 @@ const licensesButton = footer?.licensesButton ?? "Third-party licenses";
 				variant="footer"
 				locale={locale}
 				qqModal={qqModal}
+				wechatModal={wechatModal}
 				emailModal={emailModal}
 			/>
 		</div>
 	</Container>
 	<LicensesModal licensesModal={licensesModal} />
-	<QqModal qqModal={qqModal} />
+	<QqModal qqModal={qqModal} wechatModal={wechatModal} />
 	<EmailModal emailModal={emailModal} />
 </footer>

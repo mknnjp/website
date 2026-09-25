@@ -95,6 +95,11 @@ export const en: Dictionary = {
     closeLabel: "Close QQ QR code dialog",
     qrAlt: "QQ QR code",
   },
+  wechatModal: {
+    openLabel: "Show WeChat QR code",
+    closeLabel: "Close WeChat QR code dialog",
+    qrAlt: "WeChat QR code",
+  },
   emailModal: {
     openLabel: "Show email address",
     title: "Email",

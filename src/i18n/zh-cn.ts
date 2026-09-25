@@ -93,6 +93,11 @@ export const zhCn: Dictionary = {
     closeLabel: "关闭 QQ 二维码对话框",
     qrAlt: "QQ 二维码",
   },
+  wechatModal: {
+    openLabel: "显示 WeChat 二维码",
+    closeLabel: "关闭 WeChat 二维码对话框",
+    qrAlt: "WeChat 二维码",
+  },
   emailModal: {
     openLabel: "显示邮件地址",
     title: "邮件",
