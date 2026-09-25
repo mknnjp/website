@@ -14,6 +14,8 @@ interface Props {
   locale?: Locale;
   /** QQ modal labels */
   qqModal?: Dictionary["qqModal"];
+  /** WeChat modal labels */
+  wechatModal?: Dictionary["wechatModal"];
   /** Email modal labels */
   emailModal?: Dictionary["emailModal"];
   /** Custom links (defaults to SOCIAL_LINKS) */
@@ -24,11 +26,13 @@ const {
   variant = "hero",
   locale = "en",
   qqModal,
+  wechatModal,
   emailModal,
   links = SOCIAL_LINKS,
 } = Astro.props;
 
 const qqOpenLabel = qqModal?.openLabel ?? "Show QQ QR code";
+const wechatOpenLabel = wechatModal?.openLabel ?? "Show WeChat QR code";
 const emailOpenLabel = emailModal?.openLabel ?? "Show email address";
 
 // Variant-specific base classes
@@ -59,12 +63,13 @@ const showLabel = variant === "hero";
       const baseClass = variantClasses[variant];
       const size = iconSize[variant];
 
-      if (link.modal === "qq") {
+      if (link.modal === "qq" || link.modal === "wechat") {
+        const openLabel = link.modal === "qq" ? qqOpenLabel : wechatOpenLabel;
         return (
           <button
             type="button"
-            data-qq-open
-            aria-label={qqOpenLabel}
+            data-qr-open={link.modal}
+            aria-label={openLabel}
             class={baseClass}
             role="listitem"
           >

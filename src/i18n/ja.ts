@@ -97,6 +97,11 @@ export const ja: Dictionary = {
     closeLabel: "QQのQRコードダイアログを閉じる",
     qrAlt: "QQのQRコード",
   },
+  wechatModal: {
+    openLabel: "WeChatのQRコードを表示",
+    closeLabel: "WeChatのQRコードダイアログを閉じる",
+    qrAlt: "WeChatのQRコード",
+  },
   emailModal: {
     openLabel: "メールアドレスを表示",
     title: "メール",

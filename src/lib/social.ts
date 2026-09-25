@@ -2,7 +2,7 @@
  * Social Link Types
  * Discriminated union for type-safe social link handling.
  * - External links MUST have href
- * - Modal links (QQ, Email) have modal property instead of href
+ * - Modal links (QQ, WeChat, Email) have modal property instead of href
  */
 
 type SocialLinkBase = {
@@ -16,6 +16,11 @@ type QqLink = SocialLinkBase & {
   href?: never;
 };
 
+type WechatLink = SocialLinkBase & {
+  modal: "wechat";
+  href?: never;
+};
+
 type EmailLink = SocialLinkBase & {
   modal: "email";
   href?: never;
@@ -26,7 +31,7 @@ type ExternalLink = SocialLinkBase & {
   modal?: never;
 };
 
-export type SocialLink = QqLink | EmailLink | ExternalLink;
+export type SocialLink = QqLink | WechatLink | EmailLink | ExternalLink;
 
 export const SOCIAL_LINKS: SocialLink[] = [
   { label: "BiliBili", href: "https://space.bilibili.com/1157704322", icon: "simple-icons:bilibili" },
@@ -65,5 +70,6 @@ export const SOCIAL_LINKS: SocialLink[] = [
     href: "https://vrchat.com/home/user/usr_d23319bc-086d-45e8-83ff-fb9ecb026d1f",
     imgSrc: "/VRC.svg",
   },
+  { label: "WeChat", icon: "simple-icons:wechat", modal: "wechat" },
   { label: "X", href: "https://x.com/mknnjp", icon: "simple-icons:x" },
 ];
