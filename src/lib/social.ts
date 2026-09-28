@@ -38,7 +38,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
   { label: "Bluesky", href: "https://bsky.app/profile/mknn.jp", icon: "simple-icons:bluesky" },
   {
     label: "Discord",
-    href: "https://discord.com/channels/@me/257326164996128770",
+    href: "https://discord.com/users/257326164996128770",
     icon: "simple-icons:discord",
   },
   { label: "Email", icon: "lucide:mail", modal: "email" },
