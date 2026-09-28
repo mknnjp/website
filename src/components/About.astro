@@ -21,10 +21,14 @@ const paragraphs = about?.paragraphs ?? [];
 
 <Section id="about" title={title} variant="muted">
 	<div class="prose prose-slate dark:prose-invert max-w-none">
-		<p class="about-text">
+		<p class="about-text font-serif">
 			{greeting}
 		</p>
-		{paragraphs.map((paragraph) => <p class="about-text mt-1">{paragraph}</p>)}
+		{
+			paragraphs.map((paragraph) => (
+				<p class="about-text mt-1 font-serif">{paragraph}</p>
+			))
+		}
 	</div>
 </Section>
 
