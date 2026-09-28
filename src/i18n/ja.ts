@@ -75,6 +75,14 @@ export const ja: Dictionary = {
       codeReview: "コードレビュー",
       issues: "Issue",
     },
+    contributions: {
+      title: "コントリビューション",
+      loading: "コントリビューションを読み込み中…",
+      error:
+        "コントリビューションを読み込めませんでした。しばらくしてから再度お試しください。",
+      less: "少ない",
+      more: "多い",
+    },
   },
   footer: {
     rightsSuffix: "All rights reserved.",

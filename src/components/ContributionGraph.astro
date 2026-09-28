@@ -1,0 +1,139 @@
+---
+interface Props {
+  title?: string;
+  loading?: string;
+  error?: string;
+  less?: string;
+  more?: string;
+}
+
+const {
+  title = "Contributions",
+  loading = "Loading contributions…",
+  error = "Could not load contributions. Please try again later.",
+  less = "Less",
+  more = "More",
+} = Astro.props;
+---
+
+<div class="w-full">
+  <h3 class="text-lg font-semibold mb-3 text-slate-900 dark:text-white">
+    {title}
+  </h3>
+  <div
+    id="contribution-graph"
+    class="w-full overflow-x-auto"
+    aria-live="polite"
+    data-loading={loading}
+    data-error={error}
+    data-less={less}
+    data-more={more}
+  >
+    <div class="flex items-center gap-2 mb-2">
+      <span class="text-xs text-slate-500 dark:text-slate-400">{less}</span>
+      <div class="flex gap-0.5">
+        <div class="w-2.5 h-2.5 rounded-sm bg-slate-200 dark:bg-slate-700"></div>
+        <div class="w-2.5 h-2.5 rounded-sm bg-green-200 dark:bg-green-900"></div>
+        <div class="w-2.5 h-2.5 rounded-sm bg-green-400 dark:bg-green-700"></div>
+        <div class="w-2.5 h-2.5 rounded-sm bg-green-600 dark:bg-green-500"></div>
+        <div class="w-2.5 h-2.5 rounded-sm bg-green-800 dark:bg-green-300"></div>
+      </div>
+      <span class="text-xs text-slate-500 dark:text-slate-400">{more}</span>
+    </div>
+    <div id="contribution-graph-container" class="min-w-0">
+      <div class="animate-pulse text-sm text-slate-500 dark:text-slate-400">
+        {loading}
+      </div>
+    </div>
+    <p
+      id="contribution-graph-error"
+      class="text-sm text-red-600 dark:text-red-400 mt-2"
+      hidden
+    >
+    </p>
+  </div>
+</div>
+
+<script>
+  interface ContributionDay {
+    date: string;
+    contributionCount: number;
+    contributionLevel: string;
+  }
+
+  interface ContributionWeek {
+    contributionDays: ContributionDay[];
+  }
+
+  interface ContributionsResponse {
+    totalContributions: number;
+    weeks: ContributionWeek[];
+  }
+
+  const CELL_SIZE = 10;
+  const CELL_GAP = 2;
+  const WEEKS = 53;
+  const DAYS = 7;
+
+  const levelColors: Record<string, string> = {
+    NONE: "fill-slate-200 dark:fill-slate-700",
+    FIRST_QUARTILE: "fill-green-200 dark:fill-green-900",
+    SECOND_QUARTILE: "fill-green-400 dark:fill-green-700",
+    THIRD_QUARTILE: "fill-green-600 dark:fill-green-500",
+    FOURTH_QUARTILE: "fill-green-800 dark:fill-green-300",
+  };
+
+  const container = document.getElementById("contribution-graph-container");
+  const errorEl = document.getElementById("contribution-graph-error");
+  const graphEl = document.getElementById("contribution-graph");
+
+  if (container && errorEl && graphEl) {
+    const errorMsg = graphEl.dataset.error || "Error loading data";
+
+    try {
+    const response = await fetch("/api/contributions");
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    const data: ContributionsResponse = await response.json();
+
+    if (!data.weeks || data.weeks.length === 0) {
+      throw new Error("No contribution data");
+    }
+
+    // Build SVG
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("width", String(WEEKS * (CELL_SIZE + CELL_GAP) + 10));
+    svg.setAttribute("height", String(DAYS * (CELL_SIZE + CELL_GAP) + 10));
+    svg.setAttribute("viewBox", `0 0 ${WEEKS * (CELL_SIZE + CELL_GAP) + 10} ${DAYS * (CELL_SIZE + CELL_GAP) + 10}`);
+    svg.classList.add("w-full", "h-auto");
+
+    for (let week = 0; week < data.weeks.length && week < WEEKS; week++) {
+      const days = data.weeks[week].contributionDays;
+      for (let day = 0; day < days.length && day < DAYS; day++) {
+        const cell = days[day];
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", String(5 + week * (CELL_SIZE + CELL_GAP)));
+        rect.setAttribute("y", String(5 + day * (CELL_SIZE + CELL_GAP)));
+        rect.setAttribute("width", String(CELL_SIZE));
+        rect.setAttribute("height", String(CELL_SIZE));
+        rect.setAttribute("rx", "1.5");
+        rect.classList.add(levelColors[cell.contributionLevel] || levelColors.NONE);
+
+        // Tooltip
+        const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+        title.textContent = `${cell.date}: ${cell.contributionCount} contribution${cell.contributionCount !== 1 ? "s" : ""}`;
+        rect.appendChild(title);
+
+        svg.appendChild(rect);
+      }
+    }
+
+    container.innerHTML = "";
+    container.appendChild(svg);
+  } catch (err) {
+    container.innerHTML = "";
+    errorEl.textContent = errorMsg;
+    errorEl.hidden = false;
+  }
+  }
+</script>

@@ -278,3 +278,79 @@ export const fetchTopReposWithCache = async (
   saveCachedTopRepos(repos);
   return repos;
 }
+
+// --- Contribution Graph (GraphQL) ---
+
+export interface ContributionDay {
+  date: string;
+  contributionCount: number;
+  contributionLevel: "NONE" | "FIRST_QUARTILE" | "SECOND_QUARTILE" | "THIRD_QUARTILE" | "FOURTH_QUARTILE";
+}
+
+export interface ContributionWeek {
+  contributionDays: ContributionDay[];
+}
+
+export interface ContributionCalendar {
+  totalContributions: number;
+  weeks: ContributionWeek[];
+}
+
+export interface ContributionsResponse {
+  totalContributions: number;
+  weeks: ContributionWeek[];
+}
+
+const CONTRIBUTIONS_QUERY = `
+  query($username: String!) {
+    user(login: $username) {
+      contributionsCollection {
+        contributionCalendar {
+          totalContributions
+          weeks {
+            contributionDays {
+              date
+              contributionCount
+              contributionLevel
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+/** Fetch contribution calendar data via GitHub GraphQL API (server-side only) */
+export const fetchContributions = async (
+  username: string = USERNAME,
+  token: string,
+): Promise<ContributionsResponse> => {
+  const response = await fetch("https://api.github.com/graphql", {
+    method: "POST",
+    headers: {
+      Authorization: `bearer ${token}`,
+      "Content-Type": "application/json",
+      "User-Agent": USER_AGENT,
+    },
+    body: JSON.stringify({
+      query: CONTRIBUTIONS_QUERY,
+      variables: { username },
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`GitHub GraphQL API error: ${response.status} ${response.statusText}`);
+  }
+
+  const data = await response.json();
+
+  if (data.errors) {
+    throw new Error(`GitHub GraphQL error: ${data.errors.map((e: { message: string }) => e.message).join(", ")}`);
+  }
+
+  const calendar: ContributionCalendar = data.data.user.contributionsCollection.contributionCalendar;
+  return {
+    totalContributions: calendar.totalContributions,
+    weeks: calendar.weeks,
+  };
+}

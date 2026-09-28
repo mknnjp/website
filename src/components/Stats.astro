@@ -1,6 +1,7 @@
 ---
 import Section from "./Section.astro";
 import Card from "./Card.astro";
+import ContributionGraph from "./ContributionGraph.astro";
 import type { Dictionary } from "../i18n/dictionary.ts";
 
 interface Props {
@@ -28,6 +29,14 @@ const activityLabels = stats?.labels ?? {
 	codeReview: "Code Reviews",
 	issues: "Issues",
 };
+const contributionsTitle = stats?.contributions?.title ?? "Contributions";
+const contributionsLoading =
+	stats?.contributions?.loading ?? "Loading contributions…";
+const contributionsError =
+	stats?.contributions?.error ??
+	"Could not load contributions. Please try again later.";
+const contributionsLess = stats?.contributions?.less ?? "Less";
+const contributionsMore = stats?.contributions?.more ?? "More";
 
 const statHeadingClass =
 	"text-lg font-semibold mb-3 text-slate-900 dark:text-white";
@@ -112,6 +121,14 @@ const skeletonBar =
 		>
 		</p>
 	</Card>
+
+	<ContributionGraph
+		title={contributionsTitle}
+		loading={contributionsLoading}
+		error={contributionsError}
+		less={contributionsLess}
+		more={contributionsMore}
+	/>
 </Section>
 
 <script>

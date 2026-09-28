@@ -15,11 +15,13 @@
     "lint:fix": "oxlint --fix"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^12.6.13",
     "@octokit/core": "^7.0.8",
     "@octokit/plugin-paginate-rest": "^15.0.0",
     "@octokit/request-error": "^7.1.2",
     "astro": "^7.2.0",
-    "astro-icon": "1.1.5"
+    "astro-icon": "1.1.5",
+    "wrangler": "^4.142.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
