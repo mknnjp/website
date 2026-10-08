@@ -32,11 +32,16 @@ const {
     <div class="flex items-center gap-2 mb-2">
       <span class="text-xs text-slate-500 dark:text-slate-400">{less}</span>
       <div class="flex gap-0.5">
-        <div class="w-2.5 h-2.5 rounded-sm bg-slate-200 dark:bg-slate-700"></div>
-        <div class="w-2.5 h-2.5 rounded-sm bg-green-200 dark:bg-green-900"></div>
-        <div class="w-2.5 h-2.5 rounded-sm bg-green-400 dark:bg-green-700"></div>
-        <div class="w-2.5 h-2.5 rounded-sm bg-green-600 dark:bg-green-500"></div>
-        <div class="w-2.5 h-2.5 rounded-sm bg-green-800 dark:bg-green-300"></div>
+        <div class="w-2.5 h-2.5 rounded-sm bg-slate-200 dark:bg-slate-700">
+        </div>
+        <div class="w-2.5 h-2.5 rounded-sm bg-green-200 dark:bg-green-900">
+        </div>
+        <div class="w-2.5 h-2.5 rounded-sm bg-green-400 dark:bg-green-700">
+        </div>
+        <div class="w-2.5 h-2.5 rounded-sm bg-green-600 dark:bg-green-500">
+        </div>
+        <div class="w-2.5 h-2.5 rounded-sm bg-green-800 dark:bg-green-300">
+        </div>
       </div>
       <span class="text-xs text-slate-500 dark:text-slate-400">{more}</span>
     </div>
@@ -58,7 +63,7 @@ const {
   interface ContributionDay {
     date: string;
     contributionCount: number;
-    contributionLevel: string;
+    contributionLevel: keyof typeof levelColors;
   }
 
   interface ContributionWeek {
@@ -75,13 +80,13 @@ const {
   const WEEKS = 53;
   const DAYS = 7;
 
-  const levelColors: Record<string, string> = {
+  const levelColors = {
     NONE: "fill-slate-200 dark:fill-slate-700",
     FIRST_QUARTILE: "fill-green-200 dark:fill-green-900",
     SECOND_QUARTILE: "fill-green-400 dark:fill-green-700",
     THIRD_QUARTILE: "fill-green-600 dark:fill-green-500",
     FOURTH_QUARTILE: "fill-green-800 dark:fill-green-300",
-  };
+  } as const satisfies Record<string, string>;
 
   const container = document.getElementById("contribution-graph-container");
   const errorEl = document.getElementById("contribution-graph-error");
@@ -91,49 +96,58 @@ const {
     const errorMsg = graphEl.dataset.error || "Error loading data";
 
     try {
-    const response = await fetch("/api/contributions");
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const response = await fetch("/api/contributions");
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-    const data: ContributionsResponse = await response.json();
+      const data: ContributionsResponse = await response.json();
 
-    if (!data.weeks || data.weeks.length === 0) {
-      throw new Error("No contribution data");
-    }
-
-    // Build SVG
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("width", String(WEEKS * (CELL_SIZE + CELL_GAP) + 10));
-    svg.setAttribute("height", String(DAYS * (CELL_SIZE + CELL_GAP) + 10));
-    svg.setAttribute("viewBox", `0 0 ${WEEKS * (CELL_SIZE + CELL_GAP) + 10} ${DAYS * (CELL_SIZE + CELL_GAP) + 10}`);
-    svg.classList.add("w-full", "h-auto");
-
-    for (let week = 0; week < data.weeks.length && week < WEEKS; week++) {
-      const days = data.weeks[week].contributionDays;
-      for (let day = 0; day < days.length && day < DAYS; day++) {
-        const cell = days[day];
-        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        rect.setAttribute("x", String(5 + week * (CELL_SIZE + CELL_GAP)));
-        rect.setAttribute("y", String(5 + day * (CELL_SIZE + CELL_GAP)));
-        rect.setAttribute("width", String(CELL_SIZE));
-        rect.setAttribute("height", String(CELL_SIZE));
-        rect.setAttribute("rx", "1.5");
-        rect.classList.add(levelColors[cell.contributionLevel] || levelColors.NONE);
-
-        // Tooltip
-        const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
-        title.textContent = `${cell.date}: ${cell.contributionCount} contribution${cell.contributionCount !== 1 ? "s" : ""}`;
-        rect.appendChild(title);
-
-        svg.appendChild(rect);
+      if (!data.weeks || data.weeks.length === 0) {
+        throw new Error("No contribution data");
       }
-    }
 
-    container.innerHTML = "";
-    container.appendChild(svg);
-  } catch (err) {
-    container.innerHTML = "";
-    errorEl.textContent = errorMsg;
-    errorEl.hidden = false;
-  }
+      // Build SVG
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("width", String(WEEKS * (CELL_SIZE + CELL_GAP) + 10));
+      svg.setAttribute("height", String(DAYS * (CELL_SIZE + CELL_GAP) + 10));
+      svg.setAttribute(
+        "viewBox",
+        `0 0 ${WEEKS * (CELL_SIZE + CELL_GAP) + 10} ${DAYS * (CELL_SIZE + CELL_GAP) + 10}`,
+      );
+      svg.classList.add("w-full", "h-auto");
+
+      for (let week = 0; week < data.weeks.length && week < WEEKS; week++) {
+        const days = data.weeks[week].contributionDays;
+        for (let day = 0; day < days.length && day < DAYS; day++) {
+          const cell = days[day];
+          const rect = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "rect",
+          );
+          rect.setAttribute("x", String(5 + week * (CELL_SIZE + CELL_GAP)));
+          rect.setAttribute("y", String(5 + day * (CELL_SIZE + CELL_GAP)));
+          rect.setAttribute("width", String(CELL_SIZE));
+          rect.setAttribute("height", String(CELL_SIZE));
+          rect.setAttribute("rx", "1.5");
+          rect.classList.add(levelColors[cell.contributionLevel]);
+
+          // Tooltip
+          const title = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "title",
+          );
+          title.textContent = `${cell.date}: ${cell.contributionCount} contribution${cell.contributionCount !== 1 ? "s" : ""}`;
+          rect.appendChild(title);
+
+          svg.appendChild(rect);
+        }
+      }
+
+      container.innerHTML = "";
+      container.appendChild(svg);
+    } catch (err) {
+      container.innerHTML = "";
+      errorEl.textContent = errorMsg;
+      errorEl.hidden = false;
+    }
   }
 </script>
