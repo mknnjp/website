@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import { SITE_DESCRIPTION, SITE_TITLE } from "../lib/site.ts";
+import { THEME_STORAGE_KEY } from "../lib/theme.ts";
 import {
 	DEFAULT_LOCALE,
 	LOCALE_STORAGE_KEY,
@@ -25,7 +26,6 @@ const localeInfo = getLocaleInfo(locale);
 const siteUrl = Astro.site?.toString().replace(/\/$/, "");
 const localePath =
 	localeInfo.path === "/" ? "" : localeInfo.path.replace(/\/$/, "");
-const THEME_STORAGE_KEY = "theme";
 const canonicalUrl =
 	canonical ?? (siteUrl ? `${siteUrl}${localePath}/` : undefined);
 const fontHref =
@@ -47,17 +47,18 @@ const fontHref =
 				themeStorageKey: THEME_STORAGE_KEY,
 			}}
 		>
+			let savedTheme = null;
 			try {
-				const savedTheme = localStorage.getItem(themeStorageKey);
-				if (savedTheme === "dark") {
-					document.documentElement.classList.add("dark");
-				} else if (savedTheme === "light") {
-					document.documentElement.classList.remove("dark");
-				} else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-					document.documentElement.classList.add("dark");
-				}
+				savedTheme = localStorage.getItem(themeStorageKey);
 			} catch {
 				// Ignore storage errors
+			}
+			if (savedTheme === "dark") {
+				document.documentElement.classList.add("dark");
+			} else if (savedTheme === "light") {
+				document.documentElement.classList.remove("dark");
+			} else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+				document.documentElement.classList.add("dark");
 			}
 		</script>
 		<meta name="description" content={description} />
