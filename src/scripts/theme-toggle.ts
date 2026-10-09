@@ -1,3 +1,5 @@
+import { THEME_STORAGE_KEY } from "../lib/theme.ts";
+
 export const initThemeToggle = (): void => {
   const themeToggle = document.getElementById("theme-toggle");
   const themeIconSun = document.getElementById("theme-icon-sun");
@@ -12,7 +14,7 @@ export const initThemeToggle = (): void => {
   themeToggle?.addEventListener("click", () => {
     document.documentElement.classList.toggle("dark");
     try {
-      localStorage.setItem("theme", isDark() ? "dark" : "light");
+      localStorage.setItem(THEME_STORAGE_KEY, isDark() ? "dark" : "light");
     } catch {
       // Ignore storage errors
     }
