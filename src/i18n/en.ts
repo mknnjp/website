@@ -79,6 +79,8 @@ export const en: Dictionary = {
       error: "Could not load contributions. Please try again later.",
       less: "Less",
       more: "More",
+      tooltip: "{date}: {count} contributions",
+      tooltipOne: "{date}: {count} contribution",
     },
   },
   footer: {

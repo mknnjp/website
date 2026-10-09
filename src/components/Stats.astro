@@ -6,9 +6,10 @@ import type { Dictionary } from "../i18n/dictionary.ts";
 
 interface Props {
 	stats?: Dictionary["stats"];
+	locale?: string;
 }
 
-const { stats } = Astro.props;
+const { stats, locale = "en" } = Astro.props;
 
 const title = stats?.title ?? "GitHub Stats";
 const recentPushesHeading = stats?.recentPushes ?? "Recent pushes";
@@ -37,6 +38,10 @@ const contributionsError =
 	"Could not load contributions. Please try again later.";
 const contributionsLess = stats?.contributions?.less ?? "Less";
 const contributionsMore = stats?.contributions?.more ?? "More";
+const contributionsTooltip =
+	stats?.contributions?.tooltip ?? "{date}: {count} contributions";
+const contributionsTooltipOne =
+	stats?.contributions?.tooltipOne ?? "{date}: {count} contribution";
 
 const statHeadingClass =
 	"text-lg font-semibold mb-3 text-slate-900 dark:text-white";
@@ -122,13 +127,18 @@ const skeletonBar =
 		</p>
 	</Card>
 
-	<ContributionGraph
-		title={contributionsTitle}
-		loading={contributionsLoading}
-		error={contributionsError}
-		less={contributionsLess}
-		more={contributionsMore}
-	/>
+	<Card>
+		<ContributionGraph
+			title={contributionsTitle}
+			loading={contributionsLoading}
+			error={contributionsError}
+			less={contributionsLess}
+			more={contributionsMore}
+			tooltip={contributionsTooltip}
+			tooltipOne={contributionsTooltipOne}
+			locale={locale}
+		/>
+	</Card>
 </Section>
 
 <script>

@@ -61,8 +61,15 @@ pnpm preview
 | Variable | Description |
 | --- | --- |
 | `SITE_URL` | Public origin of the deployed site, including the scheme, such as `https://me.mknn.jp`. Set this in the Cloudflare Pages build environment. |
+| `GITHUB_TOKEN` | GitHub token used by the `/api/contributions` Pages Function to query the GraphQL API. Set it as a secret in the Cloudflare Pages environment. |
 
-No GitHub API token is required. GitHub data is fetched from public, unauthenticated endpoints in the browser.
+Most GitHub data (recent pushes, activity, and top repositories) is fetched from public, unauthenticated endpoints in the browser. The contribution graph is different: it is rendered on demand by a Cloudflare Pages Function that calls the GitHub GraphQL API with `GITHUB_TOKEN`, so the token is never exposed to the client.
+
+For local development, create a `.dev.vars` file in the project root (it is git-ignored) so the Cloudflare adapter exposes the token to `Astro.locals.runtime.env`:
+
+```sh
+GITHUB_TOKEN=ghp_your_token_here
+```
 
 ## Project Structure
 

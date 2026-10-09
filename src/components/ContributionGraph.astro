@@ -5,6 +5,9 @@ interface Props {
   error?: string;
   less?: string;
   more?: string;
+  tooltip?: string;
+  tooltipOne?: string;
+  locale?: string;
 }
 
 const {
@@ -13,21 +16,27 @@ const {
   error = "Could not load contributions. Please try again later.",
   less = "Less",
   more = "More",
+  tooltip = "{date}: {count} contributions",
+  tooltipOne = "{date}: {count} contribution",
+  locale = "en",
 } = Astro.props;
 ---
 
 <div class="w-full">
-  <h3 class="text-lg font-semibold mb-3 text-slate-900 dark:text-white">
+  <h3
+    id="contribution-graph-title"
+    class="text-lg font-semibold mb-3 text-slate-900 dark:text-white"
+  >
     {title}
   </h3>
   <div
     id="contribution-graph"
     class="w-full overflow-x-auto"
     aria-live="polite"
-    data-loading={loading}
     data-error={error}
-    data-less={less}
-    data-more={more}
+    data-tooltip={tooltip}
+    data-tooltip-one={tooltipOne}
+    data-locale={locale}
   >
     <div class="flex items-center gap-2 mb-2">
       <span class="text-xs text-slate-500 dark:text-slate-400">{less}</span>
@@ -53,6 +62,7 @@ const {
     <p
       id="contribution-graph-error"
       class="text-sm text-red-600 dark:text-red-400 mt-2"
+      role="alert"
       hidden
     >
     </p>
@@ -60,20 +70,10 @@ const {
 </div>
 
 <script>
-  interface ContributionDay {
-    date: string;
-    contributionCount: number;
-    contributionLevel: keyof typeof levelColors;
-  }
-
-  interface ContributionWeek {
-    contributionDays: ContributionDay[];
-  }
-
-  interface ContributionsResponse {
-    totalContributions: number;
-    weeks: ContributionWeek[];
-  }
+  import type {
+    ContributionLevel,
+    ContributionsResponse,
+  } from "../lib/github-client.ts";
 
   const CELL_SIZE = 10;
   const CELL_GAP = 2;
@@ -81,12 +81,12 @@ const {
   const DAYS = 7;
 
   const levelColors = {
-    NONE: "fill-slate-200 dark:fill-slate-700",
-    FIRST_QUARTILE: "fill-green-200 dark:fill-green-900",
-    SECOND_QUARTILE: "fill-green-400 dark:fill-green-700",
-    THIRD_QUARTILE: "fill-green-600 dark:fill-green-500",
-    FOURTH_QUARTILE: "fill-green-800 dark:fill-green-300",
-  } as const satisfies Record<string, string>;
+    NONE: ["fill-slate-200", "dark:fill-slate-700"],
+    FIRST_QUARTILE: ["fill-green-200", "dark:fill-green-900"],
+    SECOND_QUARTILE: ["fill-green-400", "dark:fill-green-700"],
+    THIRD_QUARTILE: ["fill-green-600", "dark:fill-green-500"],
+    FOURTH_QUARTILE: ["fill-green-800", "dark:fill-green-300"],
+  } as const satisfies Record<ContributionLevel, readonly string[]>;
 
   const container = document.getElementById("contribution-graph-container");
   const errorEl = document.getElementById("contribution-graph-error");
@@ -94,6 +94,25 @@ const {
 
   if (container && errorEl && graphEl) {
     const errorMsg = graphEl.dataset.error || "Error loading data";
+    const tooltipTemplate =
+      graphEl.dataset.tooltip || "{date}: {count} contributions";
+    const tooltipOneTemplate =
+      graphEl.dataset.tooltipOne || "{date}: {count} contribution";
+    const locale = graphEl.dataset.locale || "en";
+
+    const dateFormatter = new Intl.DateTimeFormat(locale, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC",
+    });
+
+    const formatTooltip = (date: string, count: number): string => {
+      const template = count === 1 ? tooltipOneTemplate : tooltipTemplate;
+      return template
+        .replace("{date}", dateFormatter.format(new Date(`${date}T00:00:00Z`)))
+        .replace("{count}", String(count));
+    };
 
     try {
       const response = await fetch("/api/contributions");
@@ -101,8 +120,8 @@ const {
 
       const data: ContributionsResponse = await response.json();
 
-      if (!data.weeks || data.weeks.length === 0) {
-        throw new Error("No contribution data");
+      if (!data.weeks) {
+        throw new Error("Malformed contribution data");
       }
 
       // Build SVG
@@ -113,6 +132,8 @@ const {
         "viewBox",
         `0 0 ${WEEKS * (CELL_SIZE + CELL_GAP) + 10} ${DAYS * (CELL_SIZE + CELL_GAP) + 10}`,
       );
+      svg.setAttribute("role", "img");
+      svg.setAttribute("aria-labelledby", "contribution-graph-title");
       svg.classList.add("w-full", "h-auto");
 
       for (let week = 0; week < data.weeks.length && week < WEEKS; week++) {
@@ -128,14 +149,14 @@ const {
           rect.setAttribute("width", String(CELL_SIZE));
           rect.setAttribute("height", String(CELL_SIZE));
           rect.setAttribute("rx", "1.5");
-          rect.classList.add(levelColors[cell.contributionLevel]);
+          rect.classList.add(...levelColors[cell.contributionLevel]);
 
           // Tooltip
           const title = document.createElementNS(
             "http://www.w3.org/2000/svg",
             "title",
           );
-          title.textContent = `${cell.date}: ${cell.contributionCount} contribution${cell.contributionCount !== 1 ? "s" : ""}`;
+          title.textContent = formatTooltip(cell.date, cell.contributionCount);
           rect.appendChild(title);
 
           svg.appendChild(rect);
@@ -144,7 +165,7 @@ const {
 
       container.innerHTML = "";
       container.appendChild(svg);
-    } catch (err) {
+    } catch {
       container.innerHTML = "";
       errorEl.textContent = errorMsg;
       errorEl.hidden = false;

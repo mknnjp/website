@@ -1,15 +1,9 @@
 /// <reference types="astro/client" />
 
-declare global {
-  namespace App {
-    interface Locals {
-      runtime: {
-        env: {
-          GITHUB_TOKEN?: string;
-        };
-      };
-    }
-  }
-}
+type Runtime = import("@astrojs/cloudflare").Runtime<{
+  GITHUB_TOKEN?: string;
+}>;
 
-export {};
+declare namespace App {
+  interface Locals extends Runtime { }
+}

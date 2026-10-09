@@ -82,6 +82,8 @@ export const ja: Dictionary = {
         "コントリビューションを読み込めませんでした。しばらくしてから再度お試しください。",
       less: "少ない",
       more: "多い",
+      tooltip: "{date}: {count} 件のコントリビューション",
+      tooltipOne: "{date}: {count} 件のコントリビューション",
     },
   },
   footer: {

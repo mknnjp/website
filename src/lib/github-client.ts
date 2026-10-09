@@ -281,24 +281,37 @@ export const fetchTopReposWithCache = async (
 
 // --- Contribution Graph (GraphQL) ---
 
+export type ContributionLevel =
+  | "NONE"
+  | "FIRST_QUARTILE"
+  | "SECOND_QUARTILE"
+  | "THIRD_QUARTILE"
+  | "FOURTH_QUARTILE";
+
 export interface ContributionDay {
   date: string;
   contributionCount: number;
-  contributionLevel: "NONE" | "FIRST_QUARTILE" | "SECOND_QUARTILE" | "THIRD_QUARTILE" | "FOURTH_QUARTILE";
+  contributionLevel: ContributionLevel;
 }
 
 export interface ContributionWeek {
   contributionDays: ContributionDay[];
 }
 
-export interface ContributionCalendar {
+export interface ContributionsResponse {
   totalContributions: number;
   weeks: ContributionWeek[];
 }
 
-export interface ContributionsResponse {
-  totalContributions: number;
-  weeks: ContributionWeek[];
+interface ContributionsGraphQLResponse {
+  data?: {
+    user?: {
+      contributionsCollection?: {
+        contributionCalendar?: ContributionsResponse;
+      };
+    } | null;
+  };
+  errors?: { message: string }[];
 }
 
 const CONTRIBUTIONS_QUERY = `
@@ -322,8 +335,8 @@ const CONTRIBUTIONS_QUERY = `
 
 /** Fetch contribution calendar data via GitHub GraphQL API (server-side only) */
 export const fetchContributions = async (
-  username: string = USERNAME,
   token: string,
+  username: string = USERNAME,
 ): Promise<ContributionsResponse> => {
   const response = await fetch("https://api.github.com/graphql", {
     method: "POST",
@@ -342,13 +355,23 @@ export const fetchContributions = async (
     throw new Error(`GitHub GraphQL API error: ${response.status} ${response.statusText}`);
   }
 
-  const data = await response.json();
+  const payload = (await response.json()) as ContributionsGraphQLResponse;
 
-  if (data.errors) {
-    throw new Error(`GitHub GraphQL error: ${data.errors.map((e: { message: string }) => e.message).join(", ")}`);
+  if (payload.errors?.length) {
+    throw new Error(
+      `GitHub GraphQL error: ${payload.errors.map((e) => e.message).join(", ")}`,
+    );
   }
 
-  const calendar: ContributionCalendar = data.data.user.contributionsCollection.contributionCalendar;
+  const calendar =
+    payload.data?.user?.contributionsCollection?.contributionCalendar;
+
+  if (!calendar) {
+    throw new Error(
+      `GitHub GraphQL error: no contribution calendar for "${username}"`,
+    );
+  }
+
   return {
     totalContributions: calendar.totalContributions,
     weeks: calendar.weeks,

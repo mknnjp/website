@@ -33,7 +33,7 @@ const dict = getDictionary(locale);
   <About locale={locale} about={dict.about} />
   <TechStack tech={dict.tech} />
   <PersonalProjects personalProjects={dict.personalProjects} />
-  <Stats stats={dict.stats} />
+  <Stats stats={dict.stats} locale={locale} />
   <Footer
     locale={locale}
     footer={dict.footer}
