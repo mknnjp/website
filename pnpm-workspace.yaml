@@ -1,6 +1,13 @@
 packages:
-  - '.'
+  - "."
 
 allowBuilds:
   esbuild: true
   sharp: true
+  workerd: true
+
+# Prerelease builds required by the Cloudflare adapter are exempted from the
+# minimum release age gate. Keep this list as small as possible.
+minimumReleaseAgeExclude:
+  - miniflare@5.20260926.0-alpha
+  - wrangler@4.142.0

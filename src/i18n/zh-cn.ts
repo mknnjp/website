@@ -72,6 +72,16 @@ export const zhCn: Dictionary = {
       codeReview: "代码评审",
       issues: "问题",
     },
+    contributions: {
+      title: "贡献",
+      loading: "正在加载贡献…",
+      error: "无法加载贡献，请稍后再试。",
+      less: "少",
+      more: "多",
+      total: "过去一年共 {count} 次贡献",
+      tooltip: "{date}: {count} 次贡献",
+      tooltipOne: "{date}: {count} 次贡献",
+    },
   },
   footer: {
     rightsSuffix: "版权所有。",

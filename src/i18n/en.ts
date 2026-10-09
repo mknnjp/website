@@ -73,6 +73,16 @@ export const en: Dictionary = {
       codeReview: "Code Reviews",
       issues: "Issues",
     },
+    contributions: {
+      title: "Contributions",
+      loading: "Loading contributions…",
+      error: "Could not load contributions. Please try again later.",
+      less: "Less",
+      more: "More",
+      total: "{count} contributions in the last year",
+      tooltip: "{date}: {count} contributions",
+      tooltipOne: "{date}: {count} contribution",
+    },
   },
   footer: {
     rightsSuffix: "All rights reserved.",

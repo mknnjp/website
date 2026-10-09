@@ -9,12 +9,13 @@
     "dev": "astro dev",
     "check": "astro check",
     "build": "astro check && astro build",
-    "preview": "astro preview",
+    "preview": "wrangler pages dev dist --port 4173 --compatibility-date 2026-09-26 --compatibility-flag nodejs_compat",
     "astro": "astro",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^12.6.13",
     "@octokit/core": "^7.0.8",
     "@octokit/plugin-paginate-rest": "^15.0.0",
     "@octokit/request-error": "^7.1.2",
@@ -29,6 +30,7 @@
     "@types/node": "^26.4.0",
     "oxlint": "^1.82.0",
     "tailwindcss": "^4.3.3",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "wrangler": "^4.142.0"
   }
 }
