@@ -63,6 +63,7 @@ export interface Dictionary {
       error: string;
       less: string;
       more: string;
+      total: string;
       tooltip: string;
       tooltipOne: string;
     };

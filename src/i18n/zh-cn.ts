@@ -78,6 +78,7 @@ export const zhCn: Dictionary = {
       error: "无法加载贡献，请稍后再试。",
       less: "少",
       more: "多",
+      total: "过去一年共 {count} 次贡献",
       tooltip: "{date}: {count} 次贡献",
       tooltipOne: "{date}: {count} 次贡献",
     },

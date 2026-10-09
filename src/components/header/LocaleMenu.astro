@@ -5,14 +5,9 @@ import { LOCALES, type Locale } from "../../i18n/locales.ts";
 interface Props {
   locale?: Locale;
   languageLabel?: string;
-  storageKey?: string;
 }
 
-const {
-  locale,
-  languageLabel = "Language",
-  storageKey = "locale",
-} = Astro.props;
+const { locale, languageLabel = "Language" } = Astro.props;
 ---
 
 <div class="relative">
@@ -56,8 +51,9 @@ const {
   </div>
 </div>
 
-<script define:vars={{ storageKey }}>
+<script>
   import { initLocaleMenu } from "../../scripts/locale-menu.ts";
+  import { LOCALE_STORAGE_KEY } from "../../i18n/locales.ts";
 
-  initLocaleMenu(storageKey);
+  initLocaleMenu(LOCALE_STORAGE_KEY);
 </script>

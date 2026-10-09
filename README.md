@@ -50,7 +50,7 @@ Set the public site origin when creating a production build so canonical and Ope
 SITE_URL=https://mknn.jp pnpm build
 ```
 
-Preview the production build locally:
+Preview the production build locally (serves `dist/` with the Cloudflare Workers runtime, including the `/api/contributions` function):
 
 ```sh
 pnpm preview
@@ -96,7 +96,7 @@ All commands run from the repository root:
 | `pnpm install` | Install project dependencies |
 | `pnpm dev` | Start the development server at `http://localhost:4321` |
 | `pnpm build` | Create a production build in `dist/` |
-| `pnpm preview` | Preview the production build locally |
+| `pnpm preview` | Preview the production build locally with Wrangler (`http://localhost:4173`) |
 | `pnpm astro check` | Run Astro and TypeScript checks |
 
 ## License
