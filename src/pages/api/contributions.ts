@@ -6,7 +6,6 @@ import { USERNAME } from "../../lib/site.ts";
 export const prerender = false;
 
 const CACHE_TTL_SECONDS = 3600;
-const CACHE_KEY = "https://internal.mknn.jp/api/contributions";
 
 const jsonResponse = (
   body: unknown,
@@ -32,7 +31,8 @@ export const GET = async (context: APIContext): Promise<Response> => {
   const cache = context.locals?.runtime?.caches?.default as unknown as
     | Cache
     | undefined;
-  const cacheKey = new Request(CACHE_KEY);
+  const url = new URL(context.request.url);
+  const cacheKey = new Request(`${url.origin}/api/contributions`);
 
   const cached = await cache?.match(cacheKey);
   if (cached) {
