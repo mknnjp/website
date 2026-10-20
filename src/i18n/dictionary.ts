@@ -88,6 +88,11 @@ export interface Dictionary {
     closeLabel: string;
     qrAlt: string;
   };
+  wechatModal: {
+    openLabel: string;
+    closeLabel: string;
+    qrAlt: string;
+  };
   emailModal: {
     openLabel: string;
     title: string;
