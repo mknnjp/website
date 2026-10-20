@@ -26,3 +26,6 @@ pnpm-debug.log*
 
 # wrangler output
 .wrangler/
+
+# generated Worker type declarations
+worker-configuration.d.ts
