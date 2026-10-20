@@ -94,12 +94,17 @@ export const buildActivityStats = (events: EventResponse[]): ActivityStats => {
   };
 }
 
-/** Shared Octokit client (unauthenticated; browser safe) */
-const OctokitWithPaginate = Octokit.plugin(paginateRest).defaults({
-  userAgent: USER_AGENT,
-});
+/** Shared Octokit client factory (server-side: pass a token for higher limits) */
+const OctokitWithPaginate = Octokit.plugin(paginateRest);
 
-export const octokit = new OctokitWithPaginate();
+const createOctokit = (token?: string) =>
+  new OctokitWithPaginate({
+    userAgent: USER_AGENT,
+    ...(token ? { auth: token } : {}),
+  });
+
+/** Shared unauthenticated Octokit client (browser safe) */
+export const octokit = createOctokit();
 
 /** Normalize Octokit RequestError into the plain-error contract used by callers */
 const toFailure = (error: unknown): Error => {
@@ -113,17 +118,19 @@ const toFailure = (error: unknown): Error => {
   return error instanceof Error ? error : new Error(String(error));
 };
 
-/** Fetch public events within the recent window using pagination (browser safe) */
+/** Fetch public events within the recent window using pagination */
 export const fetchRecentEvents = async (
   username: string = USERNAME,
   days: number = RECENT_DAYS,
+  token?: string,
 ): Promise<EventResponse[]> => {
   const cutoff = getDaysAgo(days);
   const allEvents: EventResponse[] = [];
   let page = 0;
 
   try {
-    const iterator = octokit.paginate.iterator(
+    const client = token ? createOctokit(token) : octokit;
+    const iterator = client.paginate.iterator(
       "GET /users/{username}/events/public",
       { username, per_page: PER_PAGE },
     );
@@ -196,8 +203,9 @@ export const saveCachedActivity = (
 export const fetchActivityStats = async (
   username: string = USERNAME,
   days: number = RECENT_DAYS,
+  token?: string,
 ): Promise<ActivityStats> => {
-  const events = await fetchRecentEvents(username, days);
+  const events = await fetchRecentEvents(username, days, token);
   const stats = buildActivityStats(events);
   saveCachedActivity(stats);
   return stats;
@@ -216,9 +224,11 @@ interface CachedTopRepos {
 
 export const fetchTopRepos = async (
   limit: number = TOP_REPOS_LIMIT,
+  token?: string,
 ): Promise<TopRepo[]> => {
   try {
-    const response = await octokit.request("GET /users/{username}/repos", {
+    const client = token ? createOctokit(token) : octokit;
+    const response = await client.request("GET /users/{username}/repos", {
       username: USERNAME,
       per_page: PER_PAGE,
       type: "owner",
@@ -277,4 +287,103 @@ export const fetchTopReposWithCache = async (
   const repos = await fetchTopRepos(limit);
   saveCachedTopRepos(repos);
   return repos;
+}
+
+// --- Contribution Graph (GraphQL) ---
+
+export type ContributionLevel =
+  | "NONE"
+  | "FIRST_QUARTILE"
+  | "SECOND_QUARTILE"
+  | "THIRD_QUARTILE"
+  | "FOURTH_QUARTILE";
+
+export interface ContributionDay {
+  date: string;
+  contributionCount: number;
+  contributionLevel: ContributionLevel;
+}
+
+export interface ContributionWeek {
+  contributionDays: ContributionDay[];
+}
+
+export interface ContributionsResponse {
+  totalContributions: number;
+  weeks: ContributionWeek[];
+}
+
+interface ContributionsGraphQLResponse {
+  data?: {
+    user?: {
+      contributionsCollection?: {
+        contributionCalendar?: ContributionsResponse;
+      };
+    } | null;
+  };
+  errors?: { message: string }[];
+}
+
+const CONTRIBUTIONS_QUERY = `
+  query($username: String!) {
+    user(login: $username) {
+      contributionsCollection {
+        contributionCalendar {
+          totalContributions
+          weeks {
+            contributionDays {
+              date
+              contributionCount
+              contributionLevel
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+/** Fetch contribution calendar data via GitHub GraphQL API (server-side only) */
+export const fetchContributions = async (
+  token: string,
+  username: string = USERNAME,
+): Promise<ContributionsResponse> => {
+  const response = await fetch("https://api.github.com/graphql", {
+    method: "POST",
+    headers: {
+      Authorization: `bearer ${token}`,
+      "Content-Type": "application/json",
+      "User-Agent": USER_AGENT,
+    },
+    body: JSON.stringify({
+      query: CONTRIBUTIONS_QUERY,
+      variables: { username },
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`GitHub GraphQL API error: ${response.status} ${response.statusText}`);
+  }
+
+  const payload = (await response.json()) as ContributionsGraphQLResponse;
+
+  if (payload.errors?.length) {
+    throw new Error(
+      `GitHub GraphQL error: ${payload.errors.map((e) => e.message).join(", ")}`,
+    );
+  }
+
+  const calendar =
+    payload.data?.user?.contributionsCollection?.contributionCalendar;
+
+  if (!calendar) {
+    throw new Error(
+      `GitHub GraphQL error: no contribution calendar for "${username}"`,
+    );
+  }
+
+  return {
+    totalContributions: calendar.totalContributions,
+    weeks: calendar.weeks,
+  };
 }

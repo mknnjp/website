@@ -57,6 +57,16 @@ export interface Dictionary {
       codeReview: string;
       issues: string;
     };
+    contributions: {
+      title: string;
+      loading: string;
+      error: string;
+      less: string;
+      more: string;
+      total: string;
+      tooltip: string;
+      tooltipOne: string;
+    };
   };
   footer: {
     rightsSuffix: string;

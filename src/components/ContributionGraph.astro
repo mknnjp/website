@@ -1,0 +1,212 @@
+---
+interface Props {
+  title?: string;
+  loading?: string;
+  error?: string;
+  less?: string;
+  more?: string;
+  total?: string;
+  tooltip?: string;
+  tooltipOne?: string;
+  locale?: string;
+}
+
+const {
+  title = "Contributions",
+  loading = "Loading contributions…",
+  error = "Could not load contributions. Please try again later.",
+  less = "Less",
+  more = "More",
+  total = "{count} contributions in the last year",
+  tooltip = "{date}: {count} contributions",
+  tooltipOne = "{date}: {count} contribution",
+  locale = "en",
+} = Astro.props;
+---
+
+<div class="w-full">
+  <div class="flex flex-wrap items-baseline justify-between gap-2 mb-3">
+    <h3
+      id="contribution-graph-title"
+      class="text-lg font-semibold text-slate-900 dark:text-white"
+    >
+      {title}
+    </h3>
+    <p
+      id="contribution-graph-total"
+      class="text-sm text-slate-500 dark:text-slate-400"
+      aria-live="polite"
+      hidden
+    >
+    </p>
+  </div>
+  <div
+    id="contribution-graph"
+    class="w-full"
+    aria-live="polite"
+    data-error={error}
+    data-total={total}
+    data-tooltip={tooltip}
+    data-tooltip-one={tooltipOne}
+    data-locale={locale}
+  >
+    <div class="w-full overflow-x-auto pb-1">
+      <div id="contribution-graph-container" class="w-full">
+        <div class="animate-pulse text-sm text-slate-500 dark:text-slate-400">
+          {loading}
+        </div>
+      </div>
+    </div>
+    <div
+      id="contribution-graph-legend"
+      class="mt-2 flex items-center justify-end gap-2"
+      hidden
+    >
+      <span class="text-xs text-slate-500 dark:text-slate-400">{less}</span>
+      <div class="flex gap-0.5" aria-hidden="true">
+        <div class="w-2.5 h-2.5 rounded-sm bg-slate-200 dark:bg-slate-700">
+        </div>
+        <div class="w-2.5 h-2.5 rounded-sm bg-green-200 dark:bg-green-900">
+        </div>
+        <div class="w-2.5 h-2.5 rounded-sm bg-green-400 dark:bg-green-700">
+        </div>
+        <div class="w-2.5 h-2.5 rounded-sm bg-green-600 dark:bg-green-500">
+        </div>
+        <div class="w-2.5 h-2.5 rounded-sm bg-green-800 dark:bg-green-300">
+        </div>
+      </div>
+      <span class="text-xs text-slate-500 dark:text-slate-400">{more}</span>
+    </div>
+    <p
+      id="contribution-graph-error"
+      class="text-sm text-red-600 dark:text-red-400 mt-2"
+      role="alert"
+      hidden
+    >
+    </p>
+  </div>
+</div>
+
+<script>
+  import type {
+    ContributionLevel,
+    ContributionsResponse,
+  } from "../lib/github-client.ts";
+
+  const CELL_SIZE = 10;
+  const CELL_GAP = 2;
+  const WEEKS = 53;
+  const DAYS = 7;
+
+  const levelColors = {
+    NONE: ["fill-slate-200", "dark:fill-slate-700"],
+    FIRST_QUARTILE: ["fill-green-200", "dark:fill-green-900"],
+    SECOND_QUARTILE: ["fill-green-400", "dark:fill-green-700"],
+    THIRD_QUARTILE: ["fill-green-600", "dark:fill-green-500"],
+    FOURTH_QUARTILE: ["fill-green-800", "dark:fill-green-300"],
+  } as const satisfies Record<ContributionLevel, readonly string[]>;
+
+  const container = document.getElementById("contribution-graph-container");
+  const errorEl = document.getElementById("contribution-graph-error");
+  const graphEl = document.getElementById("contribution-graph");
+  const totalEl = document.getElementById("contribution-graph-total");
+  const legendEl = document.getElementById("contribution-graph-legend");
+
+  if (container && errorEl && graphEl) {
+    const errorMsg = graphEl.dataset.error || "Error loading data";
+    const totalTemplate =
+      graphEl.dataset.total || "{count} contributions in the last year";
+    const tooltipTemplate =
+      graphEl.dataset.tooltip || "{date}: {count} contributions";
+    const tooltipOneTemplate =
+      graphEl.dataset.tooltipOne || "{date}: {count} contribution";
+    const locale = graphEl.dataset.locale || "en";
+
+    const dateFormatter = new Intl.DateTimeFormat(locale, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC",
+    });
+
+    const formatTooltip = (date: string, count: number): string => {
+      const template = count === 1 ? tooltipOneTemplate : tooltipTemplate;
+      return template
+        .replace("{date}", dateFormatter.format(new Date(`${date}T00:00:00Z`)))
+        .replace("{count}", String(count));
+    };
+
+    try {
+      const response = await fetch("/api/contributions");
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      const data: ContributionsResponse = await response.json();
+
+      if (!data.weeks) {
+        throw new Error("Malformed contribution data");
+      }
+
+      // Build SVG. Scale to the container width so side margins stay even;
+      // cells keep their aspect ratio via the viewBox. On narrow screens
+      // the wrapper scrolls horizontally with a minimum width.
+      const width = WEEKS * (CELL_SIZE + CELL_GAP) + 10;
+      const height = DAYS * (CELL_SIZE + CELL_GAP) + 10;
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.removeAttribute("width");
+      svg.removeAttribute("height");
+      svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+      svg.setAttribute("role", "img");
+      svg.setAttribute("aria-labelledby", "contribution-graph-title");
+      svg.classList.add("block", "h-auto", "w-full");
+      svg.style.minWidth = `${width}px`;
+
+      for (let week = 0; week < data.weeks.length && week < WEEKS; week++) {
+        const days = data.weeks[week].contributionDays;
+        for (let day = 0; day < days.length && day < DAYS; day++) {
+          const cell = days[day];
+          const rect = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "rect",
+          );
+          rect.setAttribute("x", String(5 + week * (CELL_SIZE + CELL_GAP)));
+          rect.setAttribute("y", String(5 + day * (CELL_SIZE + CELL_GAP)));
+          rect.setAttribute("width", String(CELL_SIZE));
+          rect.setAttribute("height", String(CELL_SIZE));
+          rect.setAttribute("rx", "1.5");
+          rect.classList.add(...levelColors[cell.contributionLevel]);
+
+          // Tooltip
+          const title = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "title",
+          );
+          title.textContent = formatTooltip(cell.date, cell.contributionCount);
+          rect.appendChild(title);
+
+          svg.appendChild(rect);
+        }
+      }
+
+      container.innerHTML = "";
+      container.appendChild(svg);
+
+      if (totalEl) {
+        totalEl.textContent = totalTemplate.replace(
+          "{count}",
+          String(data.totalContributions),
+        );
+        totalEl.hidden = false;
+      }
+      if (legendEl) {
+        legendEl.hidden = false;
+      }
+    } catch {
+      container.innerHTML = "";
+      if (legendEl) {
+        legendEl.hidden = true;
+      }
+      errorEl.textContent = errorMsg;
+      errorEl.hidden = false;
+    }
+  }
+</script>

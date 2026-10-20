@@ -1,13 +1,15 @@
 ---
 import Section from "./Section.astro";
 import Card from "./Card.astro";
+import ContributionGraph from "./ContributionGraph.astro";
 import type { Dictionary } from "../i18n/dictionary.ts";
 
 interface Props {
 	stats?: Dictionary["stats"];
+	locale?: string;
 }
 
-const { stats } = Astro.props;
+const { stats, locale = "en" } = Astro.props;
 
 const title = stats?.title ?? "GitHub Stats";
 const recentPushesHeading = stats?.recentPushes ?? "Recent pushes";
@@ -28,6 +30,20 @@ const activityLabels = stats?.labels ?? {
 	codeReview: "Code Reviews",
 	issues: "Issues",
 };
+const contributionsTitle = stats?.contributions?.title ?? "Contributions";
+const contributionsLoading =
+	stats?.contributions?.loading ?? "Loading contributions…";
+const contributionsError =
+	stats?.contributions?.error ??
+	"Could not load contributions. Please try again later.";
+const contributionsLess = stats?.contributions?.less ?? "Less";
+const contributionsMore = stats?.contributions?.more ?? "More";
+const contributionsTotal =
+	stats?.contributions?.total ?? "{count} contributions in the last year";
+const contributionsTooltip =
+	stats?.contributions?.tooltip ?? "{date}: {count} contributions";
+const contributionsTooltipOne =
+	stats?.contributions?.tooltipOne ?? "{date}: {count} contribution";
 
 const statHeadingClass =
 	"text-lg font-semibold mb-3 text-slate-900 dark:text-white";
@@ -36,7 +52,7 @@ const skeletonBar =
 ---
 
 <Section id="stats" title={title}>
-	<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 		<Card>
 			<h3 class={statHeadingClass}>{recentPushesHeading}</h3>
 			<p
@@ -88,42 +104,53 @@ const skeletonBar =
 				<span class="sr-only">{loadingActivity}</span>
 			</div>
 		</Card>
-	</div>
-
-	<Card>
-		<h3 class={statHeadingClass}>{topReposHeading}</h3>
-		<div
-			id="github-top-repos"
-			class="space-y-3"
-			aria-live="polite"
-			data-load-error={topReposLoadError}
-			data-loading={loadingTopRepos}
-		>
-			<div class="flex justify-between">
-				<span class={skeletonBar} aria-hidden="true"></span>
-				<span class={skeletonBar} aria-hidden="true"></span>
+		<Card>
+			<h3 class={statHeadingClass}>{topReposHeading}</h3>
+			<div
+				id="github-top-repos"
+				class="space-y-3"
+				aria-live="polite"
+				data-load-error={topReposLoadError}
+				data-loading={loadingTopRepos}
+			>
+				<div class="flex justify-between">
+					<span class={skeletonBar} aria-hidden="true"></span>
+					<span class={skeletonBar} aria-hidden="true"></span>
+				</div>
+				<span class="sr-only">{loadingTopRepos}</span>
 			</div>
-			<span class="sr-only">{loadingTopRepos}</span>
-		</div>
-		<p
-			id="github-top-repos-error"
-			class="text-sm text-red-600 dark:text-red-400 mt-2"
-			hidden
-		>
-		</p>
-	</Card>
+			<p
+				id="github-top-repos-error"
+				class="text-sm text-red-600 dark:text-red-400 mt-2"
+				hidden
+			>
+			</p>
+		</Card>
+		<Card class="md:col-span-2">
+			<ContributionGraph
+				title={contributionsTitle}
+				loading={contributionsLoading}
+				error={contributionsError}
+				less={contributionsLess}
+				more={contributionsMore}
+				total={contributionsTotal}
+				tooltip={contributionsTooltip}
+				tooltipOne={contributionsTooltipOne}
+				locale={locale}
+			/>
+		</Card>
+	</div>
 </Section>
 
 <script>
 	import {
-		fetchActivityStats,
 		loadCachedActivity,
-		fetchTopReposWithCache,
 		loadCachedTopRepos,
+		saveCachedActivity,
+		saveCachedTopRepos,
 		type ActivityStats,
 		type TopRepo,
 	} from "../lib/github-client.ts";
-	import { USERNAME } from "../lib/site.ts";
 
 	const pushEl = document.getElementById("github-push-count");
 	const activityEl = document.getElementById("github-activity");
@@ -181,7 +208,10 @@ const skeletonBar =
 			return;
 		}
 		try {
-			const stats = await fetchActivityStats(USERNAME);
+			const response = await fetch("/api/github-stats");
+			if (!response.ok) throw new Error(`HTTP ${response.status}`);
+			const stats = (await response.json()) as ActivityStats;
+			saveCachedActivity(stats);
 			renderActivity(stats);
 		} catch {
 			renderError();
@@ -233,7 +263,10 @@ const skeletonBar =
 			return;
 		}
 		try {
-			const repos = await fetchTopReposWithCache();
+			const response = await fetch("/api/github-stats?kind=top-repos");
+			if (!response.ok) throw new Error(`HTTP ${response.status}`);
+			const repos = (await response.json()) as TopRepo[];
+			saveCachedTopRepos(repos);
 			renderTopRepos(repos);
 		} catch {
 			renderTopReposError();
