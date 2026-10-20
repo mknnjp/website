@@ -1,4 +1,6 @@
 import type { APIContext } from "astro";
+import { getSecret } from "astro:env/server";
+import { getCached, putCached } from "../../lib/edge-cache.ts";
 import { fetchContributions } from "../../lib/github-client.ts";
 import { USERNAME } from "../../lib/site.ts";
 
@@ -18,23 +20,18 @@ const jsonResponse = (
   });
 
 export const GET = async (context: APIContext): Promise<Response> => {
-  const token = context.locals?.runtime?.env?.GITHUB_TOKEN;
+  const token = getSecret("GITHUB_TOKEN");
 
   if (!token) {
     return jsonResponse({ error: "GitHub token not configured" }, 503);
   }
 
   // Cache the upstream GraphQL result at the edge so the public endpoint does
-  // not consume the token's rate limit on every request. The adapter types
-  // `caches` with @cloudflare/workers-types, whose Request/Response differ from
-  // the DOM lib types; the runtime objects are compatible, so narrow to Cache.
-  const cache = context.locals?.runtime?.caches?.default as unknown as
-    | Cache
-    | undefined;
+  // not consume the token's rate limit on every request.
   const url = new URL(context.request.url);
-  const cacheKey = new Request(`${url.origin}/api/contributions`);
+  const cacheKey = `${url.origin}/api/contributions`;
 
-  const cached = await cache?.match(cacheKey);
+  const cached = await getCached(cacheKey);
   if (cached) {
     return cached;
   }
@@ -45,14 +42,12 @@ export const GET = async (context: APIContext): Promise<Response> => {
       "Cache-Control": `public, max-age=${CACHE_TTL_SECONDS}`,
     });
 
-    if (cache) {
-      const put = cache.put(cacheKey, response.clone());
-      const ctx = context.locals?.runtime?.ctx;
-      if (ctx) {
-        ctx.waitUntil(put);
-      } else {
-        await put;
-      }
+    const put = putCached(cacheKey, response);
+    const ctx = context.locals?.cfContext;
+    if (ctx) {
+      ctx.waitUntil(put);
+    } else {
+      await put;
     }
 
     return response;

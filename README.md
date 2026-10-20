@@ -9,7 +9,7 @@
 - Recent GitHub pushes, activity breakdown, and top repositories from the public GitHub API
 - Client-side caching for GitHub data with a 24-hour retention period
 - Third-party license dialog covering dependencies, fonts, and icons
-- Production security and asset caching headers for Cloudflare Pages
+- Production security and asset caching headers for Cloudflare Workers static assets
 
 ## Technology
 
@@ -50,7 +50,7 @@ Set the public site origin when creating a production build so canonical and Ope
 SITE_URL=https://mknn.jp pnpm build
 ```
 
-Preview the production build locally (serves `dist/` with the Cloudflare Workers runtime, including the `/api/contributions` function):
+Preview the production build locally (serves `dist/` with the Cloudflare Workers runtime, including the `/api/contributions` and `/api/github-stats` endpoints):
 
 ```sh
 pnpm preview
@@ -60,22 +60,50 @@ pnpm preview
 
 | Variable | Description |
 | --- | --- |
-| `SITE_URL` | Public origin of the deployed site, including the scheme, such as `https://me.mknn.jp`. Set this in the Cloudflare Pages build environment. |
-| `GITHUB_TOKEN` | GitHub token used by the `/api/contributions` Pages Function to query the GraphQL API. Set it as a secret in the Cloudflare Pages environment. |
+| `SITE_URL` | Public origin of the deployed site, including the scheme, such as `https://me.mknn.jp`. Set this in the build environment. |
+| `GITHUB_TOKEN` | GitHub token used by the `/api/contributions` and `/api/github-stats` endpoints to query the GraphQL API. Set it as a Worker secret. |
 
-Most GitHub data (recent pushes, activity, and top repositories) is fetched from public, unauthenticated endpoints in the browser. The contribution graph is different: it is rendered on demand by a Cloudflare Pages Function that calls the GitHub GraphQL API with `GITHUB_TOKEN`, so the token is never exposed to the client.
+Most GitHub data (recent pushes, activity, and top repositories) is fetched from public, unauthenticated endpoints in the browser. The contribution graph is different: it is rendered on demand by a Cloudflare Worker route that calls the GitHub GraphQL API with `GITHUB_TOKEN`, so the token is never exposed to the client.
 
-For local development, create a `.dev.vars` file in the project root (it is git-ignored) so the Cloudflare adapter exposes the token to `Astro.locals.runtime.env`:
+For local development, create a `.dev.vars` file in the project root (it is git-ignored) so the Cloudflare Workers runtime exposes the token to the API routes:
 
 ```sh
 GITHUB_TOKEN=ghp_your_token_here
 ```
 
+### Deployment
+
+The site is deployed to Cloudflare Workers with static assets. `wrangler.jsonc` holds the
+Worker configuration.
+
+Regenerate the Worker type declarations after changing `wrangler.jsonc`:
+
+```sh
+pnpm types
+```
+
+Store the GitHub token as a Worker secret:
+
+```sh
+pnpm wrangler secret put GITHUB_TOKEN
+```
+
+Deploy the site:
+
+```sh
+SITE_URL=https://mknn.jp pnpm build
+pnpm deploy
+```
+
+Deployments to the `main` branch are handled by the GitHub Actions workflow in
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml), which requires the
+`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets.
+
 ## Project Structure
 
 ```text
 .
-├── public/                 # Static assets and Cloudflare Pages headers
+├── public/                 # Static assets and Cloudflare Workers headers
 ├── src/
 │   ├── components/         # Reusable Astro components
 │   ├── i18n/               # Locale definitions and translations
@@ -84,6 +112,7 @@ GITHUB_TOKEN=ghp_your_token_here
 │   ├── pages/              # English, Japanese, and Chinese pages
 │   └── styles/             # Global styles
 ├── astro.config.ts         # Astro, Tailwind CSS, and site configuration
+├── wrangler.jsonc          # Cloudflare Workers configuration
 └── package.json
 ```
 
@@ -96,7 +125,9 @@ All commands run from the repository root:
 | `pnpm install` | Install project dependencies |
 | `pnpm dev` | Start the development server at `http://localhost:4321` |
 | `pnpm build` | Create a production build in `dist/` |
-| `pnpm preview` | Preview the production build locally with Wrangler (`http://localhost:4173`) |
+| `pnpm preview` | Preview the production build locally with the Cloudflare Workers runtime |
+| `pnpm types` | Regenerate the Worker type declarations in `worker-configuration.d.ts` |
+| `pnpm deploy` | Deploy the Worker to Cloudflare |
 | `pnpm astro check` | Run Astro and TypeScript checks |
 
 ## License

@@ -4,6 +4,11 @@
     "types": [
       "astro/astro-jsx",
       "node"
+    ],
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable"
     ]
   },
   "include": [
@@ -11,6 +16,7 @@
     "**/*"
   ],
   "exclude": [
-    "dist"
+    "dist",
+    "worker-configuration.d.ts"
   ]
 }

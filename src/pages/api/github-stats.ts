@@ -1,4 +1,6 @@
 import type { APIContext } from "astro";
+import { getSecret } from "astro:env/server";
+import { getCached, putCached } from "../../lib/edge-cache.ts";
 import {
   buildActivityStats,
   fetchRecentEvents,
@@ -22,12 +24,9 @@ const jsonResponse = (
     headers: { "Content-Type": "application/json", ...headers },
   });
 
-const getCache = (context: APIContext): Cache | undefined =>
-  context.locals?.runtime?.caches?.default as unknown as Cache | undefined;
-
-const getCacheKey = (context: APIContext, path: string): Request => {
+const getCacheKey = (context: APIContext, path: string): string => {
   const url = new URL(context.request.url);
-  return new Request(`${url.origin}${path}`);
+  return `${url.origin}${path}`;
 };
 
 const serveCachedOrFetch = async (
@@ -35,14 +34,13 @@ const serveCachedOrFetch = async (
   path: string,
   fetcher: (token?: string) => Promise<unknown>,
 ): Promise<Response> => {
-  const token = context.locals?.runtime?.env?.GITHUB_TOKEN;
-  const cache = getCache(context);
+  const token = getSecret("GITHUB_TOKEN");
   const cacheKey = getCacheKey(context, path);
 
   // Only serve edge cache to avoid leaking authenticated responses across users.
   // Without a token the upstream is the public rate-limited API, so skip cache.
   if (token) {
-    const cached = await cache?.match(cacheKey);
+    const cached = await getCached(cacheKey);
     if (cached) {
       return cached;
     }
@@ -54,9 +52,9 @@ const serveCachedOrFetch = async (
       "Cache-Control": `public, max-age=${CACHE_TTL_SECONDS}`,
     });
 
-    if (token && cache) {
-      const put = cache.put(cacheKey, response.clone());
-      const ctx = context.locals?.runtime?.ctx;
+    if (token) {
+      const put = putCached(cacheKey, response);
+      const ctx = context.locals?.cfContext;
       if (ctx) {
         ctx.waitUntil(put);
       } else {
