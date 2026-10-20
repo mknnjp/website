@@ -9,10 +9,11 @@ interface Props {
 	locale?: Locale;
 	hero?: Dictionary["hero"];
 	qqModal?: Dictionary["qqModal"];
+	wechatModal?: Dictionary["wechatModal"];
 	emailModal?: Dictionary["emailModal"];
 }
 
-const { locale = "en", hero, qqModal, emailModal } = Astro.props;
+const { locale = "en", hero, qqModal, wechatModal, emailModal } = Astro.props;
 const displayName = DISPLAY_NAMES[locale];
 const subtitle =
 	hero?.subtitle ??
@@ -46,6 +47,7 @@ const avatarAlt = hero?.avatarAlt ?? displayName;
 			variant="hero"
 			locale={locale}
 			qqModal={qqModal}
+			wechatModal={wechatModal}
 			emailModal={emailModal}
 		/>
 	</Container>
